@@ -35,4 +35,4 @@ jobs:
 
     # Running the tests required
     - name: Running automated poetry Tests
-      run: poetry run python -m run pytest "test/" -v
+      run: poetry run python -m pytest "test/" -v
