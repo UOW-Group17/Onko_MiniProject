@@ -1,12 +1,11 @@
 [tool.poetry]
-name = "onkodicom"
+name = "UOW-Group17"
 version = "0.6.0-dev1"
-description = "OnkoDICOM is an extensible open source radiation therapy research platform based on the DICOM standard"
-authors = ["Ashley Maher <ashley.maher@didymodesigns.com.au>"]
+description = "Mini-project to learn"
+authors = ["Group17"]
 license = "LGPL"
 readme = "README.md"
-homepage = "https://onkodicom.com.au/"
-repository = "https://github.com/didymo/OnkoDICOM"
+repository = "https://github.com/UOW-Group17/Onko-MiniProject"
 package-mode = false
 
 [poetry.virtualenvs]
