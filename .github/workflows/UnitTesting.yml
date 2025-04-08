@@ -3,10 +3,10 @@ name: Unit Testing Code Base
 on:
   # Ensuring the main code base works 
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
   # Ensuring any pull requests to main are tested 
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
 
 jobs:
   # Testing to be run on Linux distros
@@ -28,11 +28,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     # Creating the poetry build system environment
-    - name: Build with Poetry
-      uses: abatilo/actions-poetry@v3
-    - name: Installing Poetrey Dependencies
+    - name: Install Poetry
+      uses: snok/install-poetry@v1.4.1
+      with:
+          version: 2.1.1
+          virtualenvs-create: true
+    - name: Installing Poetry Dependencies
       run: poetry install
 
     # Running the tests required
-    - name: Running automated poetry Tests
-      run: poetry run python -m pytest "test/" -v
+    - name: Running automated pytests Tests
+      run: poetry run pytest /test
