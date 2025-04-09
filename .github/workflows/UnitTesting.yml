@@ -53,7 +53,7 @@ jobs:
         timeout 10s poetry run pip --version || rm -rf .venv
 
     - name: updating poetry lock file
-      run: portry lock
+      run: poetry lock
     
     - name: Installing Poetry Dependencies
       run: poetry install
