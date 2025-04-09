@@ -1,5 +1,7 @@
-from "/src/add" import add
+import sys
 import pytest
+sys.path.append("/sys/src")
+import add
 
 def test_addition(self):
     assert add(1, 2) == 3
