@@ -33,9 +33,12 @@ jobs:
       with:
           version: 2.1.1
           virtualenvs-create: true
-      
+          
+    - name: activating virtual environment
+      run: source $VENV
+    
     - name: Installing Poetry Dependencies
-      run: poetry install -E all
+      run: poetry install
 
     # Running the tests required
     - name: Running automated pytests Tests
