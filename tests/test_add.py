@@ -1,6 +1,6 @@
 import sys
 import pytest
-sys.path.append("/sys/src")
+sys.path.append("/src/")
 import add
 
 def test_addition(self):
