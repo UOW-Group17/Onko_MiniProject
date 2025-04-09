@@ -33,10 +33,17 @@ jobs:
       with:
           version: 2.1.1
           virtualenvs-create: true
-          
-    - name: activating virtual environment
-      run: source $VENV
-    
+
+    - name: Configure poetry
+      run: poetry config virtualenvs.in-project true
+
+    - name: Poetry Cache
+      uses: actions/cache@v4
+      id: poetry-cache
+      with:
+        path: .venv
+        key: venv-${{ hashFiles('**/poetry.lock') }}
+        
     - name: Installing Poetry Dependencies
       run: poetry install
 
