@@ -60,7 +60,7 @@ pytest-cov = "*"
 pytest-pylint = "*"
 pytest-isort = "*"
 pytest-mypy = "*"
-pytest-qt = "*"
+# pytest-qt = "*"
 pytest-timeout = "*"
 flake8 = "*"
 
