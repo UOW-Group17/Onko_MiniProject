@@ -57,7 +57,10 @@ jobs:
     
     - name: Installing Poetry Dependencies
       run: poetry install
-
+    # SO confused right now
+    - name: Seeing where the test diectory is
+      run: ls test
+      
     # Running the tests required
     - name: Running automated pytests Tests
       run: poetry run pytest test
