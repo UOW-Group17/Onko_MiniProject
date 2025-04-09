@@ -59,7 +59,7 @@ jobs:
       run: poetry install
     # SO confused right now
     - name: Seeing where the test diectory is
-      run: ls test
+      run: ls tests
       
     # Running the tests required
     - name: Running automated pytests Tests
