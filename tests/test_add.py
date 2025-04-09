@@ -1,6 +1,5 @@
-import sys
 import pytest
-from .src.add import add
+from src import add
 
 def test_addition(self):
     assert add(1, 2) == 3
