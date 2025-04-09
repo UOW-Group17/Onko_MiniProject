@@ -1,4 +1,4 @@
-import src.add
+from "/src/add" import add
 import pytest
 
 def test_addition(self):
