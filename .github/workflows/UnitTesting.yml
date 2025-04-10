@@ -37,8 +37,9 @@ jobs:
           virtualenvs-in-project: true
     # Got to Figure this out
     - name: Setting Path variable
-      if: $RUNNER_OS == "Windows"
-      run: $env:PATH += ";C:\Users\runneradmin\.local\bin"
+      if: runner.os == "Windows"
+      env:
+        PATH: PATH += ";C:\Users\runneradmin\.local\bin"
       
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
