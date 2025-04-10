@@ -37,7 +37,7 @@ jobs:
           virtualenvs-in-project: true
 
     - name: Print OS runner
-      run: echo ${{ runner.os }}
+      run: ls /home/runner/.local/bin
     # # Got to Figure this out
     # - name: Setting Path variable
     #   if: runner.os == "Windows"
