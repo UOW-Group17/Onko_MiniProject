@@ -35,10 +35,10 @@ jobs:
           version: 2.1.1
           virtualenvs-create: true
           virtualenvs-in-project: true
-    ## Got to Figure this out
-    # - name: Setting Path variable
-    #   if: ${{ matrix.os-version }} == "windows-latest"
-    #   run: $env:PATH += ";C:\Users\runneradmin\.local\bin"
+    # Got to Figure this out
+    - name: Setting Path variable
+      if: $RUNNER_OS == "Windows"
+      run: $env:PATH += ";C:\Users\runneradmin\.local\bin"
       
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
