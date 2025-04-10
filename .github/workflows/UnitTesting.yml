@@ -34,33 +34,38 @@ jobs:
           version: 2.1.1
           virtualenvs-create: true
           
-    # No idea what the next 3 sections do just copied from
+    # No idea what this section does
+    # telling it to use in-project virtual environments sounds good. Taken from
     # https://github.com/sjswerdloff/tdwii_plus_examples/blob/main/.github/workflows/python-app.yml#L38
     - name: Configure poetry
       run: poetry config virtualenvs.in-project true
-    
+
+    # No idea what this section does
+    # caching just sounds like it would be useful. Taken from
+    # https://github.com/sjswerdloff/tdwii_plus_examples/blob/main/.github/workflows/python-app.yml#L38
     - name: Poetry Cache
       uses: actions/cache@v4
       id: poetry-cache
       with:
         path: .venv
         key: venv-${{ hashFiles('**/poetry.lock') }}
-      
+
+      # not sure if needed
+      # If a cache exists sounds like a good idea check if it runs ok. Taken from
+      # https://github.com/sjswerdloff/tdwii_plus_examples/blob/main/.github/workflows/python-app.yml#L38
     - name: Ensure cache is healthy
       if: steps.poetry-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
         timeout 10s poetry run pip --version || rm -rf .venv
 
-    - name: updating poetry lock file
-      run: poetry lock
-    
+    # Installing dependencies
+    # NOTE: tests would not work if pytest-qt was active
+    # NOTE: pytest-qt and Pyside6 may be disabled
     - name: Installing Poetry Dependencies
       run: poetry install
-    # SO confused right now
-    - name: Seeing where the test diectory is
-      run: ls tests
       
     # Running the tests required
-    - name: Running automated pytests Tests
+    - name: Running Automated Tests using Pytest
+      # getting the source files for to the files in the test file was a pain so we doing this on root
       run: poetry run pytest
