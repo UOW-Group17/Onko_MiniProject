@@ -1,5 +1,4 @@
 import pytest
-import src
 import src.add
 
 def test_add():
