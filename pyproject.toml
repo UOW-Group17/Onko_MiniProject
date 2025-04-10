@@ -6,7 +6,7 @@ authors = ["Group17"]
 license = "LGPL"
 readme = "README.md"
 repository = "https://github.com/UOW-Group17/Onko-MiniProject"
-packages = [{include = Onko_MiniProject}]
+packages = [{include = "Onko_MiniProject"}]
 
 [poetry.virtualenvs]
 create = true
