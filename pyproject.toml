@@ -1,12 +1,11 @@
 [tool.poetry]
-name = "onkodicom"
+name = "UOW-Group17"
 version = "0.6.0-dev1"
-description = "OnkoDICOM is an extensible open source radiation therapy research platform based on the DICOM standard"
-authors = ["Ashley Maher <ashley.maher@didymodesigns.com.au>"]
+description = "Mini-project to learn"
+authors = ["Group17"]
 license = "LGPL"
 readme = "README.md"
-homepage = "https://onkodicom.com.au/"
-repository = "https://github.com/didymo/OnkoDICOM"
+repository = "https://github.com/UOW-Group17/Onko-MiniProject"
 package-mode = false
 
 [poetry.virtualenvs]
@@ -38,7 +37,7 @@ pymedphys = { extras = ["all"], version = "^0.41.0", python = ">=3.10,<3.13" }
 #    { version = "==3.0.1", python = "<3.10"},
 #    { version = "==3.0.1", python = ">=3.10"}
 #]
-pyside6 = { version = ">=6.4.0,<6.9", python =">=3.10,<3.13" }
+# pyside6 = { version = ">=6.4.0,<6.9", python =">=3.10,<3.13" }
 vtk = "*"
 # shapely 1.8.3 through 1.8.5.post1 have build failures. v2.0 has API changes.
 shapely = ">=2.0"
@@ -61,7 +60,7 @@ pytest-cov = "*"
 pytest-pylint = "*"
 pytest-isort = "*"
 pytest-mypy = "*"
-pytest-qt = "*"
+# pytest-qt = "*"
 pytest-timeout = "*"
 flake8 = "*"
 
