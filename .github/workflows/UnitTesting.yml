@@ -11,11 +11,12 @@ on:
 jobs:
   # Testing to be run on Linux distros
   build:
-    runs-on: ubuntu-latest
-    # what versions of the run times need to be tested
-    strategy:
+    strategy: 
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        os-version: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]    
+    runs-on: ${{ matrix.os-version }}
+    
     steps:
     
     # Getting git code base
