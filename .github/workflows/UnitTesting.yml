@@ -35,10 +35,13 @@ jobs:
           version: 2.1.1
           virtualenvs-create: true
           virtualenvs-in-project: true
-    # Got to Figure this out
-    - name: Setting Path variable
-      if: runner.os == "Windows"
-      run: PATH += ";C:\Users\runneradmin\.local\bin"
+
+    - name: Print OS runner
+      run: echo ${{ runner.os }}
+    # # Got to Figure this out
+    # - name: Setting Path variable
+    #   if: runner.os == "Windows"
+    #   run: PATH += ";C:\Users\runneradmin\.local\bin"
       
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
