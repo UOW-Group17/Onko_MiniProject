@@ -38,8 +38,7 @@ jobs:
     # Got to Figure this out
     - name: Setting Path variable
       if: runner.os == "Windows"
-      env:
-        PATH: PATH += ";C:\Users\runneradmin\.local\bin"
+      run: PATH += ";C:\Users\runneradmin\.local\bin"
       
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
