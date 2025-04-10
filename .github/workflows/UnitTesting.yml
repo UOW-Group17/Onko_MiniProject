@@ -13,7 +13,7 @@ jobs:
   build:
     strategy: 
       matrix:
-        os-version: [ubuntu-latest, windows-latest, macos-latest]
+        os-version: [ubuntu-latest, macos-latest] # windows-latest,
         python-version: ["3.11", "3.12", "3.13"]    
     runs-on: ${{ matrix.os-version }}
     
@@ -35,10 +35,10 @@ jobs:
           version: 2.1.1
           virtualenvs-create: true
           virtualenvs-in-project: true
-
-    - name: Setting Path variable
-      if: ${{ matrix.os-version }} == "windows-latest"
-      run: $env:PATH += ";C:\Users\runneradmin\.local\bin"
+    ## Got to Figure this out
+    # - name: Setting Path variable
+    #   if: ${{ matrix.os-version }} == "windows-latest"
+    #   run: $env:PATH += ";C:\Users\runneradmin\.local\bin"
       
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
