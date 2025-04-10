@@ -39,7 +39,7 @@ jobs:
     # telling it to use in-project virtual environments sounds good. Taken from
     # https://github.com/sjswerdloff/tdwii_plus_examples/blob/main/.github/workflows/python-app.yml#L38
     - name: Configure poetry
-      run: poetry config virtualenvs.in-project true
+      run: python3 -m poetry config virtualenvs.in-project true
 
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
@@ -64,9 +64,9 @@ jobs:
     # NOTE: tests would not work if pytest-qt was active
     # NOTE: pytest-qt and Pyside6 may be disabled
     - name: Installing Poetry Dependencies
-      run: poetry install
+      run: python3 -m poetry install
       
     # Running the tests required
     - name: Running Automated Tests using Pytest
       # getting the source files for to the files in the test file was a pain so we doing this on root
-      run: poetry run pytest
+      run: python3 -m poetry run pytest
