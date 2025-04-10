@@ -34,12 +34,7 @@ jobs:
       with:
           version: 2.1.1
           virtualenvs-create: true
-          
-    # No idea what this section does
-    # telling it to use in-project virtual environments sounds good. Taken from
-    # https://github.com/sjswerdloff/tdwii_plus_examples/blob/main/.github/workflows/python-app.yml#L38
-    - name: Configure poetry
-      run: poetry config virtualenvs.in-project true
+          virtualenvs-in-project: true
 
     # No idea what this section does
     # caching just sounds like it would be useful. Taken from
