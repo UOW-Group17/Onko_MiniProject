@@ -1,5 +1,5 @@
 import pytest
-from .. import src
+from Onko-MiniProject.src.add import add
 
 def test_add():
     assert add(1, 2) == 3
