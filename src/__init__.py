@@ -1,2 +1,1 @@
-from src import *
-from src.add import *
+from src.add import add

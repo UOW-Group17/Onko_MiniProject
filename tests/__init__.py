@@ -1,1 +1,1 @@
-from src import *
+import src
