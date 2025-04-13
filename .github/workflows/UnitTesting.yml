@@ -17,7 +17,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    # Test Statagy for the job which os and what python versions
+    # Test Strategy for the job which os and what python versions
     strategy: 
       matrix:
         os-version: [macos-latest, ubuntu-latest, windows-latest]
