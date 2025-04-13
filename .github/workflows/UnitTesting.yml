@@ -9,9 +9,9 @@ on:
     branches: [ "main", "dev" ]
 
 jobs:
-  # Testing to be run on macos, ubuntu and windows
-  # Testing on serveral version of python 3.11, 3.12, 3.13
-  # Version python varsion 3.10 was removed dues to compatability issues with macos
+  # Testing to be run on macOS, ubuntu and windows
+  # Testing on several version of python 3.11, 3.12, 3.13
+  # Version python varsion 3.10 was removed dues to compatability issues with macOS
   Unit-Test:
   # Setting default shell to bash other wise windows will use powershell and the test will fail
     defaults:
