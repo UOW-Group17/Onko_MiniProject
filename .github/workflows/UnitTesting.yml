@@ -11,7 +11,7 @@ on:
 jobs:
   # Testing to be run on macOS, ubuntu and windows
   # Testing on several version of python 3.11, 3.12, 3.13
-  # Version python version 3.10 was removed due to compatability issues with macOS
+  # Version python version 3.10 was removed due to compatibility issues with macOS
   Unit-Test:
   # Setting default shell to bash other wise windows will use powershell and the test will fail
     defaults:
