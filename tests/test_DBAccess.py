@@ -1,7 +1,7 @@
 import pytest
 from src.DBAccess import DBAccess
 
-class test_DBAccess:
+class TestDBAccess:
     def test_create_table(self):
         access = DBAccess("test_Database.db")
         assert access.create_table() == 1
