@@ -11,18 +11,19 @@ on:
 jobs:
   # Testing to be run on Linux distros
   build:
-    runs-on: ubuntu-latest
-    # what versions of the run times need to be tested
-    strategy:
+    strategy: 
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        os-version: [ubuntu-latest, macos-latest] # windows-latest,
+        python-version: ["3.11", "3.12", "3.13"]    
+    runs-on: ${{ matrix.os-version }}
+    
     steps:
     
     # Getting git code base
     - uses: actions/checkout@v4
     
     # Creating the python environment
-    - name: Set up Python Environment ${{ matrix.python-version }}
+    - name: Set up Python Environment ${{ matrix.python-version }} on ${{ matrix.os-version }} runner
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
