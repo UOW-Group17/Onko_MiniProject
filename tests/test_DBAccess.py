@@ -1,5 +1,5 @@
 import pytest
-from src.DBAccess import DBAccess
+import DBAccess
 
 class test_DBAccess:
     def test_create_table(self):
