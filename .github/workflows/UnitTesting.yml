@@ -21,7 +21,7 @@ jobs:
     strategy: 
       matrix:
         os-version: [macos-latest, ubuntu-latest, windows-latest]
-        python-version: ["3.11", "3.12", "3.13"]    
+        python-version: ["3.12"]  # Removing 3.11 and 3.13 to reuse the number of tests
     runs-on: ${{ matrix.os-version }}
     
     steps:
