@@ -67,7 +67,7 @@ class MiniProjectUI(QtWidgets.QDialog):
 
     def directory_button_box(self):
         """Creates the grid layout for the button box"""
-        self._grid_group_box = QtWidgets.QGroupBox("Pateint Imformation")
+        self._grid_group_box = QtWidgets.QGroupBox("Patient Information")
         layout = QtWidgets.QGridLayout()
         button = QtWidgets.QPushButton("Open New File")
         path_label = QtWidgets.QLabel("Path: ")
@@ -120,6 +120,7 @@ class MiniProjectUI(QtWidgets.QDialog):
                 content = file.read()
                 if content == "":
                     self.please_select_directory()
+                    return
                 self.path = content
                 self.open_dicom_file()
                 
