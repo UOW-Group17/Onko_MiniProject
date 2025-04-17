@@ -1,4 +1,4 @@
-name: Unit Testing Code Base
+name: Unit Testing Code Base using pytest
 
 on:
   # Ensuring the main and dev code bases works 
