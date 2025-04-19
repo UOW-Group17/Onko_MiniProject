@@ -7,20 +7,20 @@ from PySide6.QtCore import QTimer
 from PIL import Image
 import os
 
-def dicom_image_opener(ds):
+def dicom_image_opener(ds: pydicom.Dataset)-> QImage:
     """Returns an image to be displayed by PySide6"""
-    picture = ds.pixel_array
-    picture = picture.astype(np.float32)
-    picture -= picture.min()
-    picture /= picture.max()
-    picture *= 255
-    picture = picture.astype(np.uint8)
+    pixels = ds.pixel_array
+    pixels = pixels.astype(np.float32)
+    pixels -= pixels.min()
+    max_value = pixels.max()
+    if max_value != 0:
+        pixels /= pixels.max()
+    pixels *= 255
+    pixels = pixels.astype(np.uint8)
 
-    image = Image.fromarray(picture)
-    image = image.convert("L")
-    qimage = QImage(image.tobytes(), image.width, image.height, QImage.Format_Grayscale8)
-
-    return qimage
+    display_image = Image.fromarray(pixels)
+    display_image = display_image.convert("L")
+    return QImage(display_image.tobytes(), display_image.width, display_image.height, QImage.Format_Grayscale8)
 
 class MiniProjectUI(QtWidgets.QDialog):
     """The class that contains the UI"""
@@ -43,7 +43,7 @@ class MiniProjectUI(QtWidgets.QDialog):
 
 
     #popup to allow the user to open a diretory checks if the user want to open or close the program
-    def please_select_directory(self):
+    def please_select_directory(self): 
         """Popup to allow the user to select a directory"""
         pop_up = QtWidgets.QMessageBox()
         pop_up.setIcon(QtWidgets.QMessageBox.Question)
@@ -54,12 +54,11 @@ class MiniProjectUI(QtWidgets.QDialog):
         if anw == QtWidgets.QMessageBox.Close:
             QtWidgets.QApplication.exit()
         elif anw == QtWidgets.QMessageBox.Open:
-            dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select DICOM File", filter="DICOM Files (*.dcm)")
-            self.path = dir_path
-            self.open_dicom_file()
+            self.add_directory()
 
 
     def file_cannot_be_opened_error(self):
+        """Displays the file error open button"""
         error_message = QtWidgets.QMessageBox()
         error_message.setIcon(QtWidgets.QMessageBox.Warning)
         error_message.setText("Could not open file sorry, file is either corrupted or incomplete")
@@ -85,7 +84,7 @@ class MiniProjectUI(QtWidgets.QDialog):
         self.modality_label = QtWidgets.QLabel("Modality:")
         self.modality = QtWidgets.QLabel("Modality")
 
-        button.clicked.connect(self.add_dic_button)
+        button.clicked.connect(self.add_directory)
         layout.addWidget(path_label, 0, 0)
         layout.addWidget(self.text, 0, 1, 1,4)
         layout.addWidget(fname_label, 1, 0)
@@ -106,7 +105,7 @@ class MiniProjectUI(QtWidgets.QDialog):
         layout.setColumnStretch(1, 20)
         self._grid_group_box.setLayout(layout)
 
-    def add_dic_button(self):
+    def add_directory(self):
         """Function for the button click""" 
         dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select DICOM File", filter="DICOM Files (*.dcm)") 
         self.path = dir_path
@@ -123,7 +122,6 @@ class MiniProjectUI(QtWidgets.QDialog):
                     return
                 self.path = content
                 self.open_dicom_file()
-                
         else:
             self.text.setText("Please open a DICOM file")
             self.please_select_directory()
@@ -137,6 +135,20 @@ class MiniProjectUI(QtWidgets.QDialog):
             file.write(self.path)
 
     #opens the dicom file and sets all of the data for the Patains like DOB Sex ect
+    def set_label(self, ds, field, label, default):
+        """Function to use to set the labels for PatientID, dob, ID, modality"""
+        value = ds.get(field, None)
+        label.setText(str(value) if value else default)
+    
+    def set_patient_name(self,  ds, fname_label, lname_label):
+        """Helper Function to set the labels of lname and fname"""
+        if "PatientName" in ds:
+            given = getattr(ds.PatientName, "given_name", None) or "No Name Available"
+            family = getattr(ds.PatientName, "given_name", None) or "No Name Availble"
+        else:
+            given,family = "No Name Available", "No Name Available"
+        fname_label.setText(given)
+        lname_label.setText(family)
     def open_dicom_file(self):
         """Opens a DICOM file and displays the image linked to that file, if available"""
         try:
@@ -157,42 +169,15 @@ class MiniProjectUI(QtWidgets.QDialog):
             self.image_label.setText("No Image Data Found")
 
         #A number of checks to see if there is data avalible to fill in
-        if "PatientName" in ds:
-            if getattr(ds.PatientName, "given_name", None):
-                self.fname.setText(ds.PatientName.given_name)
-            else:
-                self.fname.setText("No First Name Available")
-
-            if getattr(ds.PatientName, "family_name", None):
-                self.lname.setText(ds.PatientName.family_name)
-            else:
-                self.lname.setText("No Last Name Available")
-        else:
-            self.fname.setText("No First Name Available")
-            self.lname.setText("No Last Name Available")
+        self.set_patient_name(ds, self.fname, self.lname)
+        self.set_label(ds, "PatientID", self.patient_id, "No ID Available")
+        self.set_label(ds, "Modality", self.modality, "Modality Unknown")
+        self.set_label(ds, "PatientSex", self.sex, "Sex Unknown")
+        self.set_label(ds, "PatientBirthDate", self.dob, "DOB Unknown")
         
-        if "PatientID" in ds and ds.PatientID:
-            self.patient_id.setText(str(ds.PatientID))
-        else:
-            self.patient_id.setText("No ID Available")
-
-        if "Modality" in ds and ds.Modality:
-            self.modality.setText(str(ds.Modality))
-        else:
-            self.modality.setText("Modality Unknown")
-
-        if "PatientSex" in ds and ds.PatientSex:
-            self.sex.setText(str(ds.PatientSex))
-        else:
-            self.sex.setText("Sex Unknown")
-
-        if "PatientBirthDate" in ds and ds.PatientBirthDate:
-            self.dob.setText(str(ds.PatientBirthDate))
-        else:
-            self.dob.setText("DOB Unknown")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     widget = MiniProjectUI()
     widget.show()
-    sys.exit(widget.exec())
+    sys.exit(app.exec())
