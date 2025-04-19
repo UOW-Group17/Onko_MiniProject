@@ -1,9 +1,6 @@
 name: Unit Testing Code Base using pytest
 
 on:
-  # Ensuring the main and dev code bases works 
-  push:
-    branches: [ "main", "dev" ]
   # Ensuring any pull requests to main and dev are tested 
   pull_request:
     branches: [ "main", "dev" ]
