@@ -14,7 +14,7 @@ def dicom_image_opener(ds: pydicom.Dataset)-> QImage:
     pixels -= pixels.min()
     max_value = pixels.max()
     if max_value != 0:
-        pixels /= pixels.max()
+        pixels /= pixels.max
     pixels *= 255
     pixels = pixels.astype(np.uint8)
 
@@ -61,7 +61,7 @@ class MiniProjectUI(QtWidgets.QDialog):
         """Displays the file error open button"""
         error_message = QtWidgets.QMessageBox()
         error_message.setIcon(QtWidgets.QMessageBox.Warning)
-        error_message.setText("Could not open file sorry, file is either corrupted or incomplete")
+        error_message.setText("File can not be opened because the file is missing format data or appropriate headers")
         error_message.exec()
 
     def directory_button_box(self):
@@ -93,7 +93,6 @@ class MiniProjectUI(QtWidgets.QDialog):
         layout.addWidget(self.sex_label, 1, 3)
         layout.addWidget(self.patient_id_label, 2, 3)
         layout.addWidget(self.modality_label, 3, 3)
-        
         layout.addWidget(self.fname, 1, 1)
         layout.addWidget(self.lname, 2, 1)
         layout.addWidget(self.dob, 3, 1)
@@ -101,13 +100,13 @@ class MiniProjectUI(QtWidgets.QDialog):
         layout.addWidget(self.patient_id, 2, 4)
         layout.addWidget(self.modality, 3, 4)
         layout.addWidget(button, 5, 4)
-        
         layout.setColumnStretch(1, 20)
         self._grid_group_box.setLayout(layout)
 
     def add_directory(self):
         """Function for the button click""" 
-        dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select DICOM File", filter="DICOM Files (*.dcm)") 
+        dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select DICOM File",
+                                                            filter="DICOM Files (*.dcm)")
         self.path = dir_path
         self.open_dicom_file()
 
@@ -144,7 +143,7 @@ class MiniProjectUI(QtWidgets.QDialog):
         """Helper Function to set the labels of lname and fname"""
         if "PatientName" in ds:
             given = getattr(ds.PatientName, "given_name", None) or "No Name Available"
-            family = getattr(ds.PatientName, "given_name", None) or "No Name Availble"
+            family = getattr(ds.PatientName, "given_name", None) or "No Name Available"
         else:
             given,family = "No Name Available", "No Name Available"
         fname_label.setText(given)
