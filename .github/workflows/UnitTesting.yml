@@ -1,9 +1,6 @@
 name: Unit Testing Code Base using pytest
 
-on:
-  # Ensuring any pull requests to main and dev are tested 
-  pull_request:
-    branches: [ "main", "dev" ]
+on: [pull_request]
 
 jobs:
   # Testing to be run on macOS, ubuntu and windows
