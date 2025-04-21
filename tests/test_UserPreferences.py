@@ -33,17 +33,16 @@ class TestUserPreferences:
 
 
     def test_set_default_directory(self, access):
-        """ Test method for the set_default_directory method """
+        """ Testing to see if Adding Directory branch works """
         access.create_database_connection()
-
-        """ Testing to see if adding directory branch works """
         test_dir_add = access.set_default_directory()
         assert test_dir_add == "added"
         assert test_dir_add != "updated"
 
     def test_update_default_directory(self, access):
         """ Testing to see if updating Directory branch works """
-        test_dir_up = access.set_default_directory()
+        access.create_database_connection()
+        access.set_default_directory()
         test_dir_up = access.set_default_directory()
         assert test_dir_up == "updated"
         assert test_dir_up != "added"
