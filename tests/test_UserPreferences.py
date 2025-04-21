@@ -41,7 +41,9 @@ class TestUserPreferences:
         assert test_dir_add == "added"
         assert test_dir_add != "updated"
 
+    def test_update_default_directory(self, access):
         """ Testing to see if updating Directory branch works """
+        test_dir_up = access.set_default_directory()
         test_dir_up = access.set_default_directory()
         assert test_dir_up == "updated"
         assert test_dir_up != "added"
