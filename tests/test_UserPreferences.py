@@ -44,6 +44,7 @@ class TestUserPreferences:
         access.create_database_connection()
         access.set_default_directory()
         test_dir_up = access.set_default_directory()
+        test_dir_up = access.set_default_directory()
         assert test_dir_up == "updated"
         assert test_dir_up != "added"
 
