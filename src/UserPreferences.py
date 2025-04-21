@@ -35,7 +35,7 @@ class UserPreferences:
         logger.info("START UserPreferences Directory")
         if not pathlib.Path(self.db_location).exists():
             pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=False)
-            logger.info("UserPreferences Directory:Directory Already Existed")
+            logger.info("UserPreferences Directory:Directory Created")
         if os.name == "nt":
             try:
                 subprocess.run(["attrib", "+h", str(self.db_location)], check=True, stderr=subprocess.PIPE)
@@ -57,6 +57,7 @@ class UserPreferences:
 
     def set_default_directory(self) -> str:
         """ Setting/Changing the default directory in the Database"""
+        self.create_database_connection()
         logger.info("START: UserPreferences Setting directory")
         working_dir = os.getcwd() # getting the current working directory
         if self.database.get_user(user=self.user):
@@ -74,3 +75,7 @@ class UserPreferences:
         output = self.database.get_user(user=self.user)
         logger.info("FINISHED: Getting Default Directory")
         return output
+
+    def close(self) -> int:
+        self.database.close()
+        return 1

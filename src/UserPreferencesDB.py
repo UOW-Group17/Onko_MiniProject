@@ -122,3 +122,8 @@ class UserPreferencesDB:
         except sqlite3.OperationalError:
             logger.error("User not deleted")
             return 2
+
+    def close(self) -> int:
+        """ Closing the database connection """
+        self.database.close()
+        return 1
