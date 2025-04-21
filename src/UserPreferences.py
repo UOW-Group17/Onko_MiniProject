@@ -60,7 +60,7 @@ class UserPreferences:
         self.create_database_connection()
         logger.info("START: UserPreferences Setting directory")
         working_dir = os.getcwd() # getting the current working directory
-        if self.database.get_user(user=self.user):
+        if self.database.get_user(user=self.user) is not None:
             self.database.update_user(user=self.user, directory=working_dir)
             logger.info("FINISH: UserPreferences Setting Directory: Updated User")
             return "updated"
