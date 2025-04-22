@@ -1,8 +1,16 @@
 import pytest
-import src.add
+from src import add
 
 def test_add():
-    assert src.add(1, 2) == 3
+    assert add(1, 2) == 3
+
+def test_add_edge_cases():
+    # Test negative numbers
+    assert add(-1, -2) == -3
+    # Test addition involving zero
+    assert add(0, 5) == 5
+    # Test large numbers
+    assert add(1000000000, 1) == 1000000001
 
 if __name__ == "__main__":
     pytest.main()
