@@ -11,8 +11,12 @@ class InterfaceUserPref(ABC):
     access the UserPreferences Class
     """
     @abstractmethod
-    def save_default_path(self, path:pathlib.Path) -> None:
-        """ Saving a default path to the database """
+    def save_default_path(self, path:pathlib.Path) -> bool:
+        """
+        Saving a default path to the database
+        returns true if path has been saved
+        else False
+        """
         pass
 
     @abstractmethod
