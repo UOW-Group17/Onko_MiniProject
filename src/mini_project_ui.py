@@ -4,23 +4,10 @@ import pydicom
 from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
-from PIL import Image
+from safe_dicom_loader import dicom_image_opener
+from dicom_utils import extract_dicom_metadata
 import os
 
-def dicom_image_opener(ds: pydicom.Dataset)-> QImage:
-    """Returns an image to be displayed by PySide6"""
-    pixels = ds.pixel_array
-    pixels = pixels.astype(np.float32)
-    pixels -= pixels.min()
-    max_value = pixels.max()
-    if max_value != 0:
-        pixels /= pixels.max
-    pixels *= 255
-    pixels = pixels.astype(np.uint8)
-
-    display_image = Image.fromarray(pixels)
-    display_image = display_image.convert("L")
-    return QImage(display_image.tobytes(), display_image.width, display_image.height, QImage.Format_Grayscale8)
 
 class MiniProjectUI(QtWidgets.QDialog):
     """The class that contains the UI"""
@@ -138,25 +125,19 @@ class MiniProjectUI(QtWidgets.QDialog):
         """Function to use to set the labels for PatientID, dob, ID, modality"""
         value = ds.get(field, None)
         label.setText(str(value) if value else default)
-    
-    def set_patient_name(self,  ds, fname_label, lname_label):
-        """Helper Function to set the labels of lname and fname"""
-        if "PatientName" in ds:
-            given = getattr(ds.PatientName, "given_name", None) or "No Name Available"
-            family = getattr(ds.PatientName, "given_name", None) or "No Name Available"
-        else:
-            given,family = "No Name Available", "No Name Available"
-        fname_label.setText(given)
-        lname_label.setText(family)
+
     def open_dicom_file(self):
         """Opens a DICOM file and displays the image linked to that file, if available"""
         try:
             ds = pydicom.dcmread(self.path)
             self.save_directory_path()
+            print("Raw PatientName:", ds.get("PatientName"))
         except pydicom.errors.InvalidDicomError:
             self.file_cannot_be_opened_error()
 
         self.text.setText(self.path)
+
+        metadata = extract_dicom_metadata(ds)
 
         # Check for pixel data, and display it if available
         if 'PixelData' in ds:
@@ -167,13 +148,20 @@ class MiniProjectUI(QtWidgets.QDialog):
         else:
             self.image_label.setText("No Image Data Found")
 
-        #A number of checks to see if there is data avalible to fill in
-        self.set_patient_name(ds, self.fname, self.lname)
-        self.set_label(ds, "PatientID", self.patient_id, "No ID Available")
-        self.set_label(ds, "Modality", self.modality, "Modality Unknown")
-        self.set_label(ds, "PatientSex", self.sex, "Sex Unknown")
-        self.set_label(ds, "PatientBirthDate", self.dob, "DOB Unknown")
-        
+        # A number of checks to see if there is data avalible to fill in
+        self.fname.setText(metadata.get("GivenName", "No First Name Available"))
+        self.lname.setText(metadata.get("FamilyName", "No Last name Available"))
+        self.patient_id.setText(metadata.get("PatientID", "No ID Available"))
+        self.sex.setText(metadata.get("PatientSex", "Sex Unknown"))
+        self.dob.setText(metadata.get("PatientBirthDate", "DOB Unknown"))
+        self.modality.setText(metadata.get("Modality", "Modality Unknown"))
+
+        # self.set_patient_name(ds, self.fname, self.lname)
+        # self.set_label(ds, "PatientID", self.patient_id, "No ID Available")
+        # self.set_label(ds, "Modality", self.modality, "Modality Unknown")
+        # self.set_label(ds, "PatientSex", self.sex, "Sex Unknown")
+        # self.set_label(ds, "PatientBirthDate", self.dob, "DOB Unknown")
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
