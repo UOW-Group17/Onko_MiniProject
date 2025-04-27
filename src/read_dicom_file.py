@@ -39,7 +39,3 @@ def read_dicom_file(file_path):
     except Exception as e:
         logging.error("Unexpected Error reading %s: %s", file_path, str(e))
         return None
-
-
-dicom_file = read_dicom_file("Data/Sample_Dicom_File/0002.DCM")
-print(dicom_file)
