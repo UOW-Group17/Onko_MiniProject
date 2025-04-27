@@ -7,6 +7,7 @@ from PySide6.QtCore import QTimer
 from safe_dicom_loader import dicom_image_opener
 from dicom_utils import extract_dicom_metadata
 import os
+import logging
 
 
 class MiniProjectUI(QtWidgets.QDialog):
@@ -131,12 +132,13 @@ class MiniProjectUI(QtWidgets.QDialog):
         try:
             ds = pydicom.dcmread(self.path)
             self.save_directory_path()
-            print("Raw PatientName:", ds.get("PatientName"))
+            logging.info(f"Raw PatientName: {ds.get('PatientName')}")
         except pydicom.errors.InvalidDicomError:
             self.file_cannot_be_opened_error()
 
         self.text.setText(self.path)
 
+        #getting the data from dicom_utils
         metadata = extract_dicom_metadata(ds)
 
         # Check for pixel data, and display it if available
@@ -148,13 +150,13 @@ class MiniProjectUI(QtWidgets.QDialog):
         else:
             self.image_label.setText("No Image Data Found")
 
-        # A number of checks to see if there is data avalible to fill in
-        self.fname.setText(metadata.get("GivenName", "No First Name Available"))
-        self.lname.setText(metadata.get("FamilyName", "No Last name Available"))
-        self.patient_id.setText(metadata.get("PatientID", "No ID Available"))
-        self.sex.setText(metadata.get("PatientSex", "Sex Unknown"))
-        self.dob.setText(metadata.get("PatientBirthDate", "DOB Unknown"))
-        self.modality.setText(metadata.get("Modality", "Modality Unknown"))
+        # getting the data from the dataset and adding to the modules
+        self.fname.setText(metadata["GivenName"])
+        self.lname.setText(metadata["FamilyName"])
+        self.patient_id.setText(metadata["PatientID"])
+        self.sex.setText(metadata["PatientSex"])
+        self.dob.setText(metadata["PatientBirthDate"])
+        self.modality.setText(metadata["Modality"])
 
         # self.set_patient_name(ds, self.fname, self.lname)
         # self.set_label(ds, "PatientID", self.patient_id, "No ID Available")

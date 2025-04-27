@@ -5,13 +5,15 @@ and extract the patients data into the GUI
 
 import numpy as np
 from PySide6.QtGui import QImage
+from dataclasses import dataclass
 
 def numpy_to_qimage(array):
     """
-    This function converts a NumPy array representing a grayscale image to a QImage, suitable for display in Qt-based GUIs.
+    This function converts a NumPy array representing a grayscale image to a QImage,
+    suitable for display in Qt-based GUIs.
     It normalizes the array to 0-255, then creates a QImage with the grayscale format.
-    :param array:
-    :return: QImage || error || nothing
+    :param array: 2D NumPy array
+    :return: QImage object in grayscale format using the normalized array data and dimensions.
     """
     if array is None:
         raise TypeError("Input array cannot be None")
@@ -31,6 +33,19 @@ def numpy_to_qimage(array):
         QImage.Format_Grayscale8,
     )
 
+@dataclass
+class PatientInfo:
+    """
+    This class stores patient information extracted from a DICOM file.
+    It includes the patient's name, ID, sex, birth date, and modality.
+    """
+    given_name: str
+    family_name: str
+    patient_id: str
+    sex: str
+    birth_date: str
+    modality: str
+
 def extract_dicom_metadata(ds):
     """
     This function extracts the patients data from the DICOM file
@@ -41,7 +56,7 @@ def extract_dicom_metadata(ds):
     :return: an array with the data in it for the main to read
     """
 
-    raw_name = str(ds.get("PatientName", "")).strip()
+    patient_name = ds.get("PatientName", None)
 
     # Prepare common metadata
     common = {
@@ -52,12 +67,12 @@ def extract_dicom_metadata(ds):
     }
 
     #If statement to return data
-    if not raw_name or len(raw_name) > 20:
-        given, family = "Anonymous", "Anonymous"
-    elif "^" in raw_name:
-        family, given = raw_name.split("^", 1)
+    if not patient_name or len(str(patient_name)) > 20:  # Anonymized (UUID)
+        given = "Anonymous"
+        family = "Anonymous"
     else:
-        given, family = raw_name, "No Last Name"
+        given = getattr(patient_name, "given_name", "Unknown")
+        family = getattr(patient_name, "family_name", "Unknown")
 
     return {
         "GivenName": given,
