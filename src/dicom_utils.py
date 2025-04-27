@@ -43,32 +43,24 @@ def extract_dicom_metadata(ds):
 
     raw_name = str(ds.get("PatientName", "")).strip()
 
+    # Prepare common metadata
+    common = {
+        "PatientID": str(ds.get("PatientID", "Unknown")),
+        "PatientSex": str(ds.get("PatientSex", "Unknown")),
+        "PatientBirthDate": str(ds.get("PatientBirthDate", "Unknown")),
+        "Modality": str(ds.get("Modality", "Unknown")),
+    }
+
+    #If statement to return data
     if not raw_name or len(raw_name) > 20:
-        #If raw name = UUID
-        given = "Anonymous"
-        family = "Anonymous"
-        patient_id = "Anonymous"
-        patient_sex = "Unknown"
-        birth_date = "Unknown"
+        given, family = "Anonymous", "Anonymous"
     elif "^" in raw_name:
-        #If it is not an Anonymous patient
         family, given = raw_name.split("^", 1)
-        patient_id = str(ds.get("PatientID", "Unknown"))
-        patient_sex = str(ds.get("PatientSex", "Unknown"))
-        birth_date = str(ds.get("PatientBirthDate", "Unknown"))
     else:
-        #Patient has no last name
-        given = raw_name
-        family = "No Last Name"
-        patient_id = str(ds.get("PatientID", "Unknown"))
-        patient_sex = str(ds.get("PatientSex", "Unknown"))
-        birth_date = str(ds.get("PatientBirthDate", "Unknown"))
+        given, family = raw_name, "No Last Name"
 
     return {
         "GivenName": given,
         "FamilyName": family,
-        "PatientID": patient_id,
-        "PatientSex": patient_sex,
-        "PatientBirthDate": birth_date,
-        "Modality": str(ds.get("Modality", "Unknown")),
+        **common,
     }
