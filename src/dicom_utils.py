@@ -1,10 +1,11 @@
 """
-This file is intended to be the utility file that concerts the Images to be displayed
+This file is intended to be the utility file that converts the Images to be displayed
 and extract the patients data into the GUI
 """
 
 import numpy as np
 import pydicom
+from datetime import datetime
 from pydicom.multival import MultiValue
 from PySide6.QtGui import QImage
 from dataclasses import dataclass
@@ -45,35 +46,52 @@ class PatientInfo:
     family_name: str
     patient_id: str
     sex: str
-    birth_date: str
+    birth_date: datetime.date
     modality: str
 
-def extract_dicom_metadata(ds) -> PatientInfo:
+def extract_patient_info(ds) -> PatientInfo:
     """
-    This function extracts the patients data from the DICOM file
-    As we are using test data I have made an if statement to say the data is Anonymous
-    if the raw data comes back as a UUID and say everything is Anonymous
-    If not it will grab the name and split it then add it to the GUI
-    :param ds: dicom dataset
-    :return: an array with the data in it for the main to read
-    """
+        Extracts patient information from a DICOM dataset and returns a PatientInfo
+         object.
+
+        Handles anonymization if the patient name is missing or too long,
+        and parses the birth date.
+
+        :param ds: DICOM dataset.
+        :return: A PatientInfo object with the extracted data.
+        """
 
     patient_name = ds.get("PatientName", None)
 
-    #If statement to return data
-    if not patient_name or len(str(patient_name)) > 20:  # Anonymized (UUID)
-        given = "Anonymous"
-        family = "Anonymous"
-    else:
+    #TODO Need to optimise the below better!
+    given = "Anonymous"
+    family = "Anonymous"
+    patient_id = "Anonymous"
+    sex = "Anonymous"
+
+    # If statement to return data - Correct the condition here
+    if not patient_name or len(str(patient_name)) <= 20:
         given = getattr(patient_name, "given_name", "Unknown")
         family = getattr(patient_name, "family_name", "Unknown")
+        patient_id = str(ds.get("PatientID", "Unknown"))
+        sex = str(ds.get("PatientSex", "Unknown"))
+
+    birth_date_str = ds.get("PatientBirthDate", "Unknown")
+
+    if birth_date_str is not None:
+        try:
+            birth_date = datetime.strptime(birth_date_str, "%Y%m%d").date()
+        except ValueError:
+            birth_date = None
+    else:
+        birth_date = None
 
     return PatientInfo(
         given_name = given,
         family_name = family,
-        patient_id=str(ds.get("PatientID", "Unknown")),
-        sex=str(ds.get("PatientSex", "Unknown")),
-        birth_date=str(ds.get("PatientBirthDate", "Unknown")),
+        patient_id=patient_id,
+        sex=sex,
+        birth_date=birth_date,
         modality=str(ds.get("Modality", "Unknown"))
     )
 
@@ -95,15 +113,23 @@ def validate_dicom(ds):
     ]:
         raise ValueError(f"Missing required DICOM fields: {', '.join(missing_fields)}")
 
-    #raises error for "LOCALISER" images & non-AXIAL images
-    if image_type := ds.get("ImageType", None):
-        if isinstance(image_type, pydicom.multival.MultiValue):
-            image_type_list = [str(val).strip().upper() for val in image_type]
-            if "LOCALIZER" in image_type_list:
-                raise ValueError("Skipping LOCALIZER image.")
-            if "AXIAL" not in image_type_list:
-                raise ValueError("Skipping non-AXIAL image.")
-        elif not isinstance(image_type, str):
-            raise TypeError("ImageType must be a string or MultiValue")
+    image_type = getattr(ds, "ImageType", None)
 
+    if isinstance(image_type, str):
+        image_type_list = [image_type.strip().upper()]
+    elif isinstance(image_type, (pydicom.multival.MultiValue, list)):
+        image_type_list = [str(val).strip().upper() for val in image_type]
+    else:
+        raise ValueError(f"Unexpected ImageType format: {type(image_type)}")
+
+    #checking to see if there are any Localizer images
+    if "LOCALIZER" in image_type_list:
+        raise ValueError("Skipping LOCALIZER image.")
+
+    # for CT images: only keep AXIAL images
+    modality = ds.get("Modality", "").upper()
+    if modality == "CT" and "AXIAL" not in image_type_list:
+        raise ValueError("Skipping non-AXIAL CT image.")
+
+    #all tests passed
     return True

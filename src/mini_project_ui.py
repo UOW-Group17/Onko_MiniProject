@@ -1,11 +1,13 @@
 import numpy as np
 import sys
 import pydicom
+import logging
 from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
-from safe_dicom_loader import dicom_image_opener
-from dicom_utils import extract_dicom_metadata
+from inputs_and_outputs import get_qimage_from_dicom_file
+from dicom_utils import extract_patient_info
+from read_dicom_file import read_dicom_file
 import os
 
 
@@ -129,39 +131,46 @@ class MiniProjectUI(QtWidgets.QDialog):
     def open_dicom_file(self):
         """Opens a DICOM file and displays the image linked to that file, if available"""
         try:
-            ds = pydicom.dcmread(self.path)
-            self.save_directory_path()
-            print("Raw PatientName:", ds.get("PatientName"))
+
+            ds = read_dicom_file(self.path)
+            if ds is not None:
+                self.save_directory_path()
+            else:
+                logging.error("Could not open DICOM file")
+
         except pydicom.errors.InvalidDicomError:
             self.file_cannot_be_opened_error()
 
         self.text.setText(self.path)
 
-        metadata = extract_dicom_metadata(ds)
+        metadata = extract_patient_info(ds)
 
         # Check for pixel data, and display it if available
         if 'PixelData' in ds:
-            image = dicom_image_opener(ds)
-            pixmap = QPixmap.fromImage(image)
-            self.image_label.setPixmap(pixmap)
-            self.image_label.setScaledContents(True)
+            try:
+                image = get_qimage_from_dicom_file(ds)
+                pixmap = QPixmap.fromImage(image)
+                self.image_label.setPixmap(pixmap)
+                self.image_label.setScaledContents(True)
+            except Exception as e:
+                logging.error(f"Error displaying image: {e}")
+                self.image_label.setText("Error Displaying Image")
         else:
             self.image_label.setText("No Image Data Found")
 
+        if metadata.birth_date:
+            # Change the date variable to a string
+            formatted_birth_date = metadata.birth_date.strftime("%Y-%m-%d")
+        else:
+            formatted_birth_date = "Unknown"
+
         # A number of checks to see if there is data avalible to fill in
-        self.fname.setText(metadata.get("GivenName", "No First Name Available"))
-        self.lname.setText(metadata.get("FamilyName", "No Last name Available"))
-        self.patient_id.setText(metadata.get("PatientID", "No ID Available"))
-        self.sex.setText(metadata.get("PatientSex", "Sex Unknown"))
-        self.dob.setText(metadata.get("PatientBirthDate", "DOB Unknown"))
-        self.modality.setText(metadata.get("Modality", "Modality Unknown"))
-
-        # self.set_patient_name(ds, self.fname, self.lname)
-        # self.set_label(ds, "PatientID", self.patient_id, "No ID Available")
-        # self.set_label(ds, "Modality", self.modality, "Modality Unknown")
-        # self.set_label(ds, "PatientSex", self.sex, "Sex Unknown")
-        # self.set_label(ds, "PatientBirthDate", self.dob, "DOB Unknown")
-
+        self.fname.setText(metadata.given_name)
+        self.lname.setText(metadata.family_name)
+        self.patient_id.setText(metadata.patient_id)
+        self.sex.setText(metadata.sex)
+        self.dob.setText(formatted_birth_date)
+        self.modality.setText(metadata.modality)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

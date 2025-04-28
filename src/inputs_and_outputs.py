@@ -5,7 +5,8 @@ This file is used to open the dicom image, if it cant be opened it will throw er
 import numpy as np
 from dicom_utils import numpy_to_qimage
 
-def dicom_image_opener(ds):
+#Todo Image is not loading if the image is anything other than 2D
+def get_qimage_from_dicom_file(ds):
     """
     this method attempts to open a dicom image and convert it to a QImage.
     It uses the get_normalized_pixel_array function to extract and normalize the pixel data,
@@ -31,7 +32,6 @@ def dicom_image_opener(ds):
     except Exception as e:
         raise RuntimeError("Error loading DICOM image") from e
 
-# TODO Rename this here and in `dicom_image_opener`
 def get_normalized_pixel_array(ds):
     """
     This function takes a DICOM dataset (ds) and extracts its pixel array.
