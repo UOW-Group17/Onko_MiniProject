@@ -5,12 +5,6 @@ This file is used to open the dicom image, if it cant be opened it will throw er
 import numpy as np
 from dicom_utils import numpy_to_qimage
 
-def convert_to_qimage(pixels):
-    qimage = numpy_to_qimage(pixels)
-    if qimage is None:
-        raise ValueError("Failed to convert image to QImage")
-    return qimage
-
 def dicom_image_opener(ds):
     """
     this method attempts to open a dicom image and convert it to a QImage.
@@ -24,7 +18,12 @@ def dicom_image_opener(ds):
         pixels = get_normalized_pixel_array(ds)
         if pixels is None:
             raise ValueError("Failed to normalize pixel array")
-        return convert_to_qimage(pixels)
+
+        qimage = numpy_to_qimage(pixels)
+        if qimage is None:
+            raise ValueError("Failed to convert image to QImage")
+
+        return qimage
     except AttributeError as e:
         raise ValueError("DICOM file is missing pixel data") from e
     except ValueError:
@@ -32,7 +31,6 @@ def dicom_image_opener(ds):
     except Exception as e:
         raise RuntimeError("Error loading DICOM image") from e
 
-# TODO Rename this here and in `dicom_image_opener`
 def get_normalized_pixel_array(ds):
     """
     This function takes a DICOM dataset (ds) and extracts its pixel array.
@@ -47,11 +45,11 @@ def get_normalized_pixel_array(ds):
         raise TypeError("Pixel array is not a numpy array")
 
     # This threshold defines the minimum value to check before normalization
-    NORMALIZATION_THRESHOLD = 1e-6
+    normalisation_threshold = 1e-6
 
     pixels = pixels.astype(np.float32)
     max_val = pixels.max()
-    if max_val >= NORMALIZATION_THRESHOLD:
+    if max_val >= normalisation_threshold:
         pixels /= max_val
 
     return pixels

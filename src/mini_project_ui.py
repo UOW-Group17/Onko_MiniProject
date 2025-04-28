@@ -5,10 +5,9 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
 from safe_dicom_loader import dicom_image_opener
-from dicom_utils import extract_dicom_metadata
+from dicom_utils import extract_dicom_metadata, validate_dicom
 import os
 import logging
-
 
 class MiniProjectUI(QtWidgets.QDialog):
     """The class that contains the UI"""
@@ -132,38 +131,43 @@ class MiniProjectUI(QtWidgets.QDialog):
         try:
             ds = pydicom.dcmread(self.path)
             self.save_directory_path()
-            logging.info(f"Raw PatientName: {ds.get('PatientName')}")
+
+            # must validate Image & required fields in dicom_utils
+            validate_dicom(ds)
+            self.text.setText(self.path)
+
+            # getting the data from dicom_utils
+            metadata = extract_dicom_metadata(ds)
+
+            if 'PixelData' in ds:
+                try:
+                    image = dicom_image_opener(ds)
+                    pixmap = QPixmap.fromImage(image)
+                    self.image_label.setPixmap(pixmap)
+                    self.image_label.setScaledContents(True)
+                except Exception as e:
+                    logging.error(f"Error displaying image: {e}")
+                    self.image_label.setText("Error Displaying Image")
+            else:
+                self.image_label.setText("No Image Data Found")
+
+            self.fname.setText(metadata.given_name)
+            self.lname.setText(metadata.family_name)
+            self.patient_id.setText(metadata.patient_id)
+            self.sex.setText(metadata.sex)
+            self.dob.setText(metadata.birth_date)
+            self.modality.setText(metadata.modality)
+
+            return True  # Indicate success
+
         except pydicom.errors.InvalidDicomError:
+            logging.error("Invalid DICOM file.")
             self.file_cannot_be_opened_error()
-
-        self.text.setText(self.path)
-
-        #getting the data from dicom_utils
-        metadata = extract_dicom_metadata(ds)
-
-        # Check for pixel data, and display it if available
-        if 'PixelData' in ds:
-            image = dicom_image_opener(ds)
-            pixmap = QPixmap.fromImage(image)
-            self.image_label.setPixmap(pixmap)
-            self.image_label.setScaledContents(True)
-        else:
-            self.image_label.setText("No Image Data Found")
-
-        # getting the data from the dataset and adding to the modules
-        self.fname.setText(metadata["GivenName"])
-        self.lname.setText(metadata["FamilyName"])
-        self.patient_id.setText(metadata["PatientID"])
-        self.sex.setText(metadata["PatientSex"])
-        self.dob.setText(metadata["PatientBirthDate"])
-        self.modality.setText(metadata["Modality"])
-
-        # self.set_patient_name(ds, self.fname, self.lname)
-        # self.set_label(ds, "PatientID", self.patient_id, "No ID Available")
-        # self.set_label(ds, "Modality", self.modality, "Modality Unknown")
-        # self.set_label(ds, "PatientSex", self.sex, "Sex Unknown")
-        # self.set_label(ds, "PatientBirthDate", self.dob, "DOB Unknown")
-
+            return False  # Indicate failure
+        except ValueError as e:
+            logging.error(f"Validation Error: {e}")
+            self.file_cannot_be_opened_error()
+            return False # Indicate failure
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
