@@ -15,8 +15,6 @@ class TestUserPreferencesDB:
         db_access = UserPreferencesDB(db_path)
         db_access.create_table()
         yield db_access
-        db_access.database.close()
-        db_path.unlink()
         logging.info('Teardown test DB fixture')
     """ Test Class for DBAccess """
     def test_create_table(self, access):
@@ -43,7 +41,7 @@ class TestUserPreferencesDB:
         assert str(invalid_user.value) == "Error: Invalid Directory Name"
         with pytest.raises(RuntimeError) as invalid_dir:
             access.add_default_directory("ValidUser", pathlib.Path(""))
-        assert str(invalid_user.value) == "Error: Invalid Directory Name"
+        assert str(invalid_dir.value) == "Error: Invalid Directory Name"
         with pytest.raises(RuntimeError) as invalid_user:
             long_username = "u" * 300
             access.add_default_directory(long_username, temp_dir)
