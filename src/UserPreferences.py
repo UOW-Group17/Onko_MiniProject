@@ -114,10 +114,11 @@ class UserPreferences(InterfaceUserPref):
     def get_default_directory(self) -> pathlib.Path | None:
         """ Getting the user working directory"""
         logger.info("START: Getting Default Directory")
-        output = self.database.get_default_directory(user=self.user)
-        logger.info("FINISHED: Getting Default Directory")
-        if output is None:
-            raise RuntimeError("ERROR: No Default Directory Found")
+        try:
+            output = self.database.get_default_directory(user=self.user)
+            logger.info("FINISHED: Getting Default Directory")
+        except sqlite3.OperationalError as error:
+            raise sqlite3.OperationalError from error
         return output
 
     def close(self) -> bool:

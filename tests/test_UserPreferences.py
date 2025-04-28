@@ -1,8 +1,11 @@
+import sqlite3
 from typing import Any, Generator
 import pytest
 import logging
 import os
 from src.UserPreferences import UserPreferences
+from src.UserPreferencesDB import UserPreferencesDB
+import sqlite3
 import pathlib
 
 logging.debug("UnitTests: UserPreferences")
@@ -23,6 +26,14 @@ class TestUserPreferences:
         access.create_directory()
         yield access
 
+    @pytest.fixture
+    def fix_setup_db(self, tmp_path, access:UserPreferences) -> Generator[UserPreferences, Any, None]:
+        """ Fixture to update user preferences """
+        access.create_database_connection()
+        temp_dir:pathlib.Path = tmp_path / "test_db"
+        access.set_default_directory(temp_dir)
+        yield access
+
     def test_create_directory(self, access:UserPreferences) -> None:
         """ Test method for the create directory method """
         # logic is required here due to the tests needing to know which OS is being run
@@ -35,14 +46,9 @@ class TestUserPreferences:
     def test_create_database_connection(self, access:UserPreferences) -> None:
         """ Testing for if the Class Creates an instance of UserPreferencesDB """
         assert access.create_database_connection()
-
-    @pytest.fixture
-    def fix_setup_db(self, tmp_path, access:UserPreferences) -> Generator[UserPreferences, Any, None]:
-        """ Fixture to update user preferences """
-        access.create_database_connection()
-        temp_dir:pathlib.Path = tmp_path / "test_db"
-        access.set_default_directory(temp_dir)
-        yield access
+        result = access.create_database_connection()
+        assert result
+        assert isinstance(access.database, UserPreferencesDB)
 
     def test_set_default_directory(self, tmp_path, access:UserPreferences) -> None:
         """ Testing to see if Adding Directory branch works """
@@ -59,6 +65,12 @@ class TestUserPreferences:
         """ Test method for the get_default_directory method """
         temp_dir: pathlib.Path = tmp_path / "test_db"
         assert fix_setup_db.get_default_directory() == temp_dir
+        temp_dir2: pathlib.Path = tmp_path / "test_db2"
+        with pytest.raises(sqlite3.OperationalError) as invalid_dir:
+            new_db_dir:UserPreferences = UserPreferences(temp_dir2)
+            new_db_dir.create_database_connection()
+            new_db_dir.get_default_directory()
+        assert isinstance(invalid_dir.value, sqlite3.OperationalError)
 
     def test_close(self, access:UserPreferences) -> None:
         """ Test method for the close method """

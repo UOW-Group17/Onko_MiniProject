@@ -90,7 +90,7 @@ class UserPreferencesDB:
         if (
             not user
             or directory is None
-            or user.__len__() > 50
+            or user.__len__() > 12
             or directory == pathlib.Path("")
             or len(str(directory)) > 200
         ):

@@ -1,12 +1,10 @@
 """ Test File for the DBAccess file """
 import pathlib
-
 import pytest
 import logging
 from src.UserPreferencesDB import UserPreferencesDB
 
 logging.debug("UnitTests: UserPreferencesDB")
-
 
 class TestUserPreferencesDB:
     @pytest.fixture
@@ -45,7 +43,7 @@ class TestUserPreferencesDB:
         assert str(invalid_user.value) == "Error: Invalid Directory Name"
         with pytest.raises(RuntimeError) as invalid_dir:
             access.add_default_directory("ValidUser", pathlib.Path(""))
-        assert invalid_dir.value.args[0] == "Error: Invalid Directory Name"
+        assert str(invalid_user.value) == "Error: Invalid Directory Name"
         with pytest.raises(RuntimeError) as invalid_user:
             long_username = "u" * 300
             access.add_default_directory(long_username, temp_dir)
@@ -62,6 +60,7 @@ class TestUserPreferencesDB:
         access.add_default_directory("Chuck", temp_dir)
         assert access.update_default_directory("Chuck", temp_dir2)
         assert access.update_default_directory("Cho", temp_dir)
+        assert access.get_default_directory("Cho") is None
         with pytest.raises(RuntimeError) as invalid_user:
             access.update_default_directory("", temp_dir)
         assert str(invalid_user.value) == "Error: Invalid Directory Name"
@@ -77,16 +76,16 @@ class TestUserPreferencesDB:
             access.update_default_directory("ValidUser", pathlib.Path(long_dir))
         assert str(invalid_dir.value) == "Error: Invalid Directory Name"
 
-    def test_delete_default_directory(self, access):
+    def test_delete_default_directory(self, tmp_path, access):
         """ Test Method for delete User method """
-        access.add_default_directory("Dan", "~/")
-        assert access.delete_default_directory("Dan") == 1
-        assert access.get_default_directory("Dan") != ("Dan", "~/")
-        assert access.delete_default_directory("Dom") == 1
+        access.add_default_directory("Dan", pathlib.Path(tmp_path))
+        assert access.delete_default_directory("Dan")
+        assert access.get_default_directory("Dan") is None
+        assert access.delete_default_directory("Dom")
 
     def test_close(self, access):
         """ closes database connection """
-        assert access.close() == 1
+        assert access.close()
 
 if __name__ == "__main__":
     pytest.main()
