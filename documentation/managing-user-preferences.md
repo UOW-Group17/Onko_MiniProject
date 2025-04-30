@@ -14,3 +14,8 @@ Key features:
 ### 2.1 UserPreferencesDB.py
 
 **Purpose:** Manages SQLite database operations
+
+**Methods**
+
+|Method		      |Parameters	 |Returns|Description|
+|add_default_directory|user: str, path: str|bool   |Inserts a new user-directory record.|
