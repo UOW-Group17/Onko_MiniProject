@@ -34,3 +34,33 @@ default_path() -> pathlib.Path | None
  - Unix/macOS: Hidden via .onko (. prefix).
  - Windows: Hidden via attrib +h command.
 
+### 2.3 InterfaceUserPref.py
+
+**Purpose:** Abstract Base Class (ABC) enforcing method consistency.
+
+**Abstract Methods**
+
+```python
+@abstractmethod
+def save_default_path(self, path: pathlib.Path) -> bool: …
+
+@abstractmethod
+def default_path(self) -> pathlib.Path | None: … 
+```
+
+## 3. Usage Guide
+
+**Basic Operations**
+
+```python
+from src.UserPreferences import UserPreferences
+
+# Set default path
+prefs = UserPreferences()
+prefs.save_default_path(Path("/home/user/dicom"))
+
+# Get default path
+print(prefs.default_path())
+``` 
+
+
