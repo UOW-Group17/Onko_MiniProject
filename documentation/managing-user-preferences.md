@@ -15,17 +15,22 @@ Key features:
 
 **Purpose:** Manages SQLite database operations
 
+### 2.2 UserPreferences.py
+
+**Purpose:** Handles directory creation and database interactions.
+
 **Key Methods**
 ```python
 save_default_path(path: pathlib.Path) -> bool
 ```
-Saves path to DB.
+ - Saves path to DB.
 
 ```python
 default_path() -> pathlib.Path | None
 ```
-Retrieves path from DB.
+ - Retrieves path from DB.
 
 **OS-Specific Behaviour**
  - Unix/macOS: Hidden via .onko (. prefix).
  - Windows: Hidden via attrib +h command.
+
