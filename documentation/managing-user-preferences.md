@@ -15,7 +15,17 @@ Key features:
 
 **Purpose:** Manages SQLite database operations
 
-**Methods**
+**Key Methods**
+```python
+save_default_path(path: pathlib.Path) -> bool
+```
+Saves path to DB.
 
-|Method		      |Parameters	 |Returns|Description|
-|add_default_directory|user: str, path: str|bool   |Inserts a new user-directory record.|
+```python
+default_path() -> pathlib.Path | None
+```
+Retrieves path from DB.
+
+**OS-Specific Behaviour**
+ - Unix/macOS: Hidden via .onko (. prefix).
+ - Windows: Hidden via attrib +h command.
