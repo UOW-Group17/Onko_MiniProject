@@ -1,1 +1,4 @@
 .DS_Store
+.idea/
+*.pyc
+src/__pycache__/dicom_utils.cpython-311.pyc
