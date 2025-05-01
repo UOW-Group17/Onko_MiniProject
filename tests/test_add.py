@@ -4,6 +4,7 @@ from src import add
 def test_add():
     assert add(1, 2) == 3
 
+# edge case testing
 def test_add_edge_cases():
     # Test negative numbers
     assert add(-1, -2) == -3
