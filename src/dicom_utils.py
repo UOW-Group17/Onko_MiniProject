@@ -5,6 +5,7 @@ and extract the patients data into the GUI
 
 import numpy as np
 import pydicom
+import uuid
 from datetime import datetime
 from pydicom.multival import MultiValue
 from PySide6.QtGui import QImage
@@ -63,14 +64,14 @@ def extract_patient_info(ds) -> PatientInfo:
 
     patient_name = ds.get("PatientName", None)
 
-    #TODO Need to optimise the below better!
     given = "Anonymous"
     family = "Anonymous"
     patient_id = "Anonymous"
     sex = "Anonymous"
 
-    # If statement to return data - Correct the condition here
-    if not patient_name or len(str(patient_name)) <= 20:
+    # Checking if the name is a UUID if not then it gets all the details and
+    #replaces the Anonymous
+    if not _is_uuid(patient_name):
         given = getattr(patient_name, "given_name", "Unknown")
         family = getattr(patient_name, "family_name", "Unknown")
         patient_id = str(ds.get("PatientID", "Unknown"))
@@ -80,6 +81,7 @@ def extract_patient_info(ds) -> PatientInfo:
 
     if birth_date_str is not None:
         try:
+            #changing it to a date
             birth_date = datetime.strptime(birth_date_str, "%Y%m%d").date()
         except ValueError:
             birth_date = None
@@ -95,6 +97,20 @@ def extract_patient_info(ds) -> PatientInfo:
         modality=str(ds.get("Modality", "Unknown"))
     )
 
+def _is_uuid(patient_name):
+    """
+        Checks if a given string is a valid UUID.
+        If the input is a valid UUID it returns True.
+        If not it returns False
+
+        :param patient_name: The string to check.
+        :return: The UUID string if valid, False otherwise.
+        """
+    try:
+        uuid.UUID(str(patient_name))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
 
 def validate_dicom(ds):
     """

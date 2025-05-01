@@ -8,6 +8,7 @@ from PySide6.QtCore import QTimer
 from inputs_and_outputs import get_qimage_from_dicom_file
 from dicom_utils import extract_patient_info
 from read_dicom_file import read_dicom_file
+from babel.dates import format_date
 import os
 
 
@@ -160,7 +161,7 @@ class MiniProjectUI(QtWidgets.QDialog):
 
         if metadata.birth_date:
             # Change the date variable to a string
-            formatted_birth_date = metadata.birth_date.strftime("%Y-%m-%d")
+            formatted_birth_date = format_date(metadata.birth_date, format='long', locale='en')
         else:
             formatted_birth_date = "Unknown"
 
