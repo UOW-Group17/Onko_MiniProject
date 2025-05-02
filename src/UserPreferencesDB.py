@@ -79,7 +79,7 @@ class UserPreferencesDB:
     def add_default_directory(self, user: str, directory:pathlib.Path) -> bool:
         """ adding an entry into the user_preferences table """
         logger.info("Adding user to database")
-        self.input_check(user, directory)
+        self._input_check(user, directory)
         try:
             with self.database as base:
                 cursor:sqlite3.Cursor = base.cursor()
@@ -98,7 +98,7 @@ class UserPreferencesDB:
     def update_default_directory(self, user:str, directory:pathlib.Path) -> bool:
         """ updating an existing entry to the user_preferences table """
         logger.info("Updating user to database")
-        self.input_check(user, directory)
+        self._input_check(user, directory)
         try:
             with self.database as base:
                 cursor:sqlite3.Cursor = base.cursor()
