@@ -25,11 +25,10 @@ class UserPreferences(InterfaceUserPref):
     def __init__(self, db_location=pathlib.Path.home()) -> None:
         """ Creating dependent classes and setting up the file system for the user """
         logger.info("START: UserPreferences Database")
-        db_location = pathlib.Path(db_location)
-        self.db_location = db_location/ ".onko" # database directory ( "." makes file hidden in linux and macOS)
-        self.user = "default" # Username for key
-        # self.create_directory() #running method to create database folder
-        self.database = None  # Database access
+        db_location:pathlib.Path = pathlib.Path(db_location)
+        self.db_location:pathlib.Path = db_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
+        self.user:str = "default" # Username for key
+        self.database:UserPreferencesDB = None  # Database access
         logger.info("Finish UserPreferences Database")
 
     # Overwritten From Abstract Class
@@ -38,7 +37,6 @@ class UserPreferences(InterfaceUserPref):
         try:
             self.create_database_connection()
             self.set_default_directory(path)
-            self.close()
         except sqlite3.OperationalError as error:
             logger.error(error)
             raise sqlite3.OperationalError from error
@@ -48,8 +46,7 @@ class UserPreferences(InterfaceUserPref):
     def default_path(self) -> pathlib.Path | None:
         self.create_database_connection()
         try:
-            directory = self.get_default_directory()
-            self.close()
+            directory:pathlib.Path = self.get_default_directory()
             return directory
         except sqlite3.OperationalError as error:
             logger.error(error)
@@ -64,21 +61,24 @@ class UserPreferences(InterfaceUserPref):
         """
         logger.info("START UserPreferences Directory")
 
+        # Creating To store User-Preferences
         if not pathlib.Path(self.db_location).exists():
             pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=False)
-            logger.info("UserPreferences Directory:Directory Created")
+            logger.info("UserPreferences Directory: Directory Created")
 
-        if os.name == "nt":
-            try:
-                subprocess.run(["attrib", "+h", str(self.db_location)], check=True, stderr=subprocess.PIPE, text=True)
-            except subprocess.CalledProcessError as error:
-                logger.error(f"ERROR: UserPreferences Directory: Setting folder to hidden failed, error: {error.stderr.strip()}")
-                raise RuntimeError("Failed to set hidden attribute for UserPreferences directory") from error
-            logger.info("FINISHED: UserPreferences Directory: Created Onko directory")
-            return True
-        else:
+        # Skipping the rest of the function if the OS is not Windows
+        if os.name != "nt":
             logger.info("FINISHED: UserPreferences Directory: OS is not windows")
-            return False
+            return True
+
+        # Making Folder Hidden for Windows
+        try:
+            subprocess.run(["attrib", "+h", str(self.db_location)], check=True, stderr=subprocess.PIPE, text=True)
+            logger.info("FINISHED: UserPreferences Directory: Windows Directory hidden")
+        except subprocess.CalledProcessError as error:
+            logger.error(f"ERROR: UserPreferences Directory: Setting folder to hidden failed, error: {error.stderr.strip()}")
+            raise RuntimeError("Failed to set hidden attribute for UserPreferences directory") from error
+        return True
 
     def create_database_connection(self) -> bool:
         """
@@ -87,7 +87,7 @@ class UserPreferences(InterfaceUserPref):
         """
         logger.info("START: Creating Database Connection")
         try:
-            self.database = UserPreferencesDB(self.db_location)
+            self.database:UserPreferencesDB = UserPreferencesDB(self.db_location)
             logger.info("FINISH: Creating Database Connection")
             return True
         except sqlite3.OperationalError as error:
@@ -102,10 +102,10 @@ class UserPreferences(InterfaceUserPref):
         logger.info("START: UserPreferences Setting directory")
         try:
             if self.database.get_default_directory(user=self.user) is not None:
-                value = self.database.update_default_directory(user=self.user, directory=path)
+                value:bool = self.database.update_default_directory(user=self.user, directory=path)
                 logger.info("FINISH: UserPreferences Setting Directory: Updated User")
             else:
-                value = self.database.add_default_directory(user=self.user, directory=path)
+                value:bool = self.database.add_default_directory(user=self.user, directory=path)
                 logger.info("FINISH: UserPreferences Setting Directory: Added User")
             return value
         except sqlite3.OperationalError as error:
@@ -115,19 +115,8 @@ class UserPreferences(InterfaceUserPref):
         """ Getting the user working directory"""
         logger.info("START: Getting Default Directory")
         try:
-            output = self.database.get_default_directory(user=self.user)
+            output:pathlib.Path = self.database.get_default_directory(user=self.user)
             logger.info("FINISHED: Getting Default Directory")
         except sqlite3.OperationalError as error:
             raise sqlite3.OperationalError from error
         return output
-
-    def close(self) -> bool:
-        """ closes the database connection"""
-        logger.info("Closing Database")
-        try:
-            value = self.database.close()
-            logger.info("FINISH: Database Closing")
-            return value
-        except sqlite3.OperationalError as error:
-            logger.error("ERROR: Database Closing")
-            raise sqlite3.OperationalError from error
