@@ -27,6 +27,7 @@ class UserPreferences(InterfaceUserPref):
         logger.info("START: UserPreferences Database")
         db_location:pathlib.Path = pathlib.Path(db_location)
         self.db_location:pathlib.Path = db_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
+        logger.info(f"DB Location: {str(self.db_location)}")
         self.user:str = "default" # Username for key
         self.database:UserPreferencesDB = None  # Database access
         logger.info("Finish UserPreferences Database")

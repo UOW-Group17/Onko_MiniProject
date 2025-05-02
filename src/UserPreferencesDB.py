@@ -16,6 +16,8 @@ class UserPreferencesDB:
         """ Initializing the database connection/creating database """
         logger.info("Initializing the database connection/creating database")
         self.database_name:pathlib.Path = database_name
+        self.max_username_length:int = 20
+        self.max_directory_length:int = 200
         try:
             self.database:sqlite3.dbapi2 = sqlite3.connect(database_name)
             self.create_table()
@@ -62,18 +64,23 @@ class UserPreferencesDB:
             logger.error("User not fetched from database")
             raise sqlite3.OperationalError from error
 
-    def add_default_directory(self, user: str, directory:pathlib.Path) -> bool:
-        """ adding an entry into the user_preferences table """
-        logger.info("Adding user to database")
+    def input_check(self, user: str, directory:pathlib.Path) -> bool:
+        """ To check is the lengths of the inputs are appropriate and exist """
         if (
             not user
             or directory is None
-            or user.__len__() > 15
+            or user.__len__() > self.max_username_length
             or directory == pathlib.Path("")
-            or len(str(directory)) > 200
+            or len(str(directory)) > self.max_directory_length
         ):
             logger.error("Invalid User or Directory Name")
             raise RuntimeError("Error: Invalid Directory Name")
+        return True
+
+    def add_default_directory(self, user: str, directory:pathlib.Path) -> bool:
+        """ adding an entry into the user_preferences table """
+        logger.info("Adding user to database")
+        self.input_check(user, directory)
         try:
             with self.database as base:
                 cursor:sqlite3.Cursor = base.cursor()
@@ -92,15 +99,7 @@ class UserPreferencesDB:
     def update_default_directory(self, user:str, directory:pathlib.Path) -> bool:
         """ updating an existing entry to the user_preferences table """
         logger.info("Updating user to database")
-        if (
-            not user
-            or directory is None
-            or user.__len__() > 12
-            or directory == pathlib.Path("")
-            or len(str(directory)) > 200
-        ):
-            logger.error("Invalid Directory Name")
-            raise RuntimeError("Error: Invalid Directory Name")
+        self.input_check(user, directory)
         try:
             with self.database as base:
                 cursor:sqlite3.Cursor = base.cursor()
