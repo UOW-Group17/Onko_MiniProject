@@ -64,7 +64,7 @@ class UserPreferencesDB:
             logger.error("User not fetched from database")
             raise sqlite3.OperationalError from error
 
-    def input_check(self, user: str, directory:pathlib.Path) -> bool:
+    def input_check(self, user: str, directory:pathlib.Path) -> None:
         """ To check is the lengths of the inputs are appropriate and exist """
         if (
             not user
