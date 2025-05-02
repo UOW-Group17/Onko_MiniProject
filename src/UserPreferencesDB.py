@@ -75,7 +75,6 @@ class UserPreferencesDB:
         ):
             logger.error("Invalid User or Directory Name")
             raise RuntimeError("Error: Invalid Directory Name")
-        return True
 
     def add_default_directory(self, user: str, directory:pathlib.Path) -> bool:
         """ adding an entry into the user_preferences table """
