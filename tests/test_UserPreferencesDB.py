@@ -7,6 +7,7 @@ from src.UserPreferencesDB import UserPreferencesDB
 logging.debug("UnitTests: UserPreferencesDB")
 
 class TestUserPreferencesDB:
+    """ Test Class for DBAccess """
     @pytest.fixture
     def access(self, tmp_path):
         """ Fixture to set up and Teardown tests """
@@ -16,7 +17,6 @@ class TestUserPreferencesDB:
         db_access.create_table()
         yield db_access
         logging.info('Teardown test DB fixture')
-    """ Test Class for DBAccess """
     def test_create_table(self, access):
         """ Test Method for create Table method """
         assert access.create_table() == 1
@@ -80,10 +80,6 @@ class TestUserPreferencesDB:
         assert access.delete_default_directory("Dan")
         assert access.get_default_directory("Dan") is None
         assert access.delete_default_directory("Dom")
-
-    def test_close(self, access):
-        """ closes database connection """
-        assert access.close()
 
 if __name__ == "__main__":
     pytest.main()

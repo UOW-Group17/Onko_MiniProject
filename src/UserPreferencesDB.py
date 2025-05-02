@@ -15,26 +15,29 @@ class UserPreferencesDB:
     def __init__(self, database_name: pathlib.Path):
         """ Initializing the database connection/creating database """
         logger.info("Initializing the database connection/creating database")
+        self.database_name:pathlib.Path = database_name
         try:
-            self.database = sqlite3.connect(database_name)
+            self.database:sqlite3.dbapi2 = sqlite3.connect(database_name)
             self.create_table()
             logger.info("Database connection successful")
         except sqlite3.OperationalError as error:
             logger.error("Did not create Database object")
             raise sqlite3.OperationalError from error
 
+
     def create_table(self) -> bool:
         """ Creating table in database"""
         logger.info("Creating table in database")
         try:
-            cursor = self.database.cursor()
-            cursor.execute(
-            "CREATE TABLE IF NOT EXISTS user_preferences ("
-                "username TEXT UNIQUE PRIMARY KEY, "
-                "default_dir TEXT"
-                ")"
-            )
-            self.database.commit()
+            with self.database as base:
+                cursor:sqlite3.Cursor = base.cursor()
+                cursor.execute(
+                "CREATE TABLE IF NOT EXISTS user_preferences ("
+                    "username TEXT UNIQUE PRIMARY KEY, "
+                    "default_dir TEXT"
+                    ")"
+                )
+                self.database.commit()
             logger.info("Table created successfully")
             return True
         except sqlite3.OperationalError as error:
@@ -44,16 +47,17 @@ class UserPreferencesDB:
     def get_default_directory(self, user: str) -> pathlib.Path | None:
         logger.info("Getting default_directory from database")
         try:
-            cursor = self.database.cursor()
-            value = cursor.execute(
-                "SELECT * FROM user_preferences WHERE username = ?",
+            with self.database as base:
+                cursor:sqlite3.Cursor = base.cursor()
+                value:str = cursor.execute(
+                    "SELECT default_dir FROM user_preferences WHERE username = ?",
                 [user]
-            ).fetchone()
+                ).fetchone()
             # return None is no value is present otherwise return the values found
-            if value is None:
-                return None
-            logger.info("User is found")
-            return pathlib.Path(value[1])
+                if value is None:
+                    return None
+                logger.info("User is found")
+                return pathlib.Path(value[0])
         except sqlite3.OperationalError as error:
             logger.error("User not fetched from database")
             raise sqlite3.OperationalError from error
@@ -71,15 +75,16 @@ class UserPreferencesDB:
             logger.error("Invalid User or Directory Name")
             raise RuntimeError("Error: Invalid Directory Name")
         try:
-            cursor = self.database.cursor()
-            directory = str(directory)
-            cursor.execute(
-                "INSERT OR IGNORE INTO user_preferences(username, default_dir) VALUES (?, ?)",
-                [user, directory]
-            )
-            self.database.commit()
-            logger.info("User added successfully")
-            return True
+            with self.database as base:
+                cursor:sqlite3.Cursor = base.cursor()
+                directory:str = str(directory)
+                cursor.execute(
+                    "INSERT OR IGNORE INTO user_preferences(username, default_dir) VALUES (?, ?)",
+                    [user, directory]
+                )
+                self.database.commit()
+                logger.info("User added successfully")
+                return True
         except sqlite3.OperationalError as error:
             logger.error("OperationalError")
             raise sqlite3.OperationalError from error
@@ -97,15 +102,16 @@ class UserPreferencesDB:
             logger.error("Invalid Directory Name")
             raise RuntimeError("Error: Invalid Directory Name")
         try:
-            cursor = self.database.cursor()
-            directory = str(directory)
-            cursor.execute(
-                "UPDATE user_preferences SET default_dir= ? WHERE username= ? ",
-                [directory, user]
-            )
-            self.database.commit()
-            logger.info("Directory Updated successfully")
-            return True
+            with self.database as base:
+                cursor:sqlite3.Cursor = base.cursor()
+                directory:str = str(directory)
+                cursor.execute(
+                    "UPDATE user_preferences SET default_dir= ? WHERE username= ? ",
+                    [directory, user]
+                )
+                self.database.commit()
+                logger.info("Directory Updated successfully")
+                return True
         except sqlite3.OperationalError as error:
             logger.error("OperationalError")
             raise sqlite3.OperationalError from error
@@ -114,25 +120,15 @@ class UserPreferencesDB:
         """ deleting an existing entry from the user_preferences table """
         logger.info("Deleting directory to database")
         try:
-            cursor = self.database.cursor()
-            cursor.execute(
-                "DELETE FROM user_preferences WHERE username= ? ",
-                [user]
-            )
-            self.database.commit()
-            logger.info("Directory Deleted successfully")
-            return True
+            with self.database as base:
+                cursor:sqlite3.Cursor = base.cursor()
+                cursor.execute(
+                    "DELETE FROM user_preferences WHERE username= ? ",
+                    [user]
+                )
+                self.database.commit()
+                logger.info("Directory Deleted successfully")
+                return True
         except sqlite3.OperationalError as error:
             logger.error("Directory not deleted")
-            raise sqlite3.OperationalError from error
-
-    def close(self) -> bool:
-        """ Closing the database connection """
-        logger.info("Closing the database connection")
-        try:
-            self.database.close()
-            logger.info("Database connection closed")
-            return True
-        except sqlite3.OperationalError as error:
-            logger.error("SQL:OperationalError")
             raise sqlite3.OperationalError from error

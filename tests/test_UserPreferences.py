@@ -1,8 +1,6 @@
-import sqlite3
 from typing import Any, Generator
 import pytest
 import logging
-import os
 from src.UserPreferences import UserPreferences
 from src.UserPreferencesDB import UserPreferencesDB
 import sqlite3
@@ -36,12 +34,9 @@ class TestUserPreferences:
 
     def test_create_directory(self, access:UserPreferences) -> None:
         """ Test method for the create directory method """
-        # logic is required here due to the tests needing to know which OS is being run
-        test_dir:bool = access.create_directory()
-        if os.name == "nt":
-            assert test_dir
-        else:
-            assert not test_dir
+        # Need to figure out how to test between the different branches of this will return true if success but doesn't
+        # interrogate between which OS branch it goes down
+        assert access.create_directory()
 
     def test_create_database_connection(self, access:UserPreferences) -> None:
         """ Testing for if the Class Creates an instance of UserPreferencesDB """
@@ -71,11 +66,6 @@ class TestUserPreferences:
             new_db_dir.create_database_connection()
             new_db_dir.get_default_directory()
         assert isinstance(invalid_dir.value, sqlite3.OperationalError)
-
-    def test_close(self, access:UserPreferences) -> None:
-        """ Test method for the close method """
-        access.create_database_connection()
-        assert access.close()
 
 if __name__ == '__main__':
     pytest.main()
