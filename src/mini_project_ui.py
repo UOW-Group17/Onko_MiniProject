@@ -1,3 +1,4 @@
+
 import numpy as np
 import sys
 import pydicom
@@ -9,17 +10,24 @@ from inputs_and_outputs import get_qimage_from_dicom_file
 from dicom_utils import extract_patient_info
 from read_dicom_file import read_dicom_file
 from babel.dates import format_date
+from UserPreferences import UserPreferences
+import pathlib
 import os
-
 
 class MiniProjectUI(QtWidgets.QDialog):
     """The class that contains the UI"""
     number_rows_for_dic_button = 2
 
-    def __init__(self):
+    def __init__(self,data_base):
         super().__init__()
         self.setWindowTitle("Mini Project UI")
         self.path = ""
+        self.data_base = data_base
+        if self.data_base is not None:
+            default_path = self.data_base.default_path()
+            if default_path is not None:
+                self.path = str(default_path)
+        
         self.directory_button_box()
         main_layout = QtWidgets.QVBoxLayout()
         self.image_label = QtWidgets.QLabel("No Image to Display")
@@ -53,6 +61,20 @@ class MiniProjectUI(QtWidgets.QDialog):
         error_message.setIcon(QtWidgets.QMessageBox.Warning)
         error_message.setText("File can not be opened because the file is missing format data or appropriate headers")
         error_message.exec()
+
+    def data_base_error(self):
+        """Dislays a message if the database fails to save a value"""
+        data_base_error = QtWidgets.QMessageBox()
+        data_base_error.setIcon(QtWidgets.QMessageBox.Warning)
+        data_base_error.setText("Database could not save the path")
+        data_base_error.exec()
+    
+    def data_base_success(self):
+        """Dislays a message if the database saves the value"""
+        data_base_success = QtWidgets.QMessageBox()
+        data_base_success.setIcon(QtWidgets.QMessageBox.Information)
+        data_base_success.setText("Database could not save the path")
+        data_base_success.exec()
 
     def directory_button_box(self):
         """Creates the grid layout for the button box"""
@@ -115,13 +137,12 @@ class MiniProjectUI(QtWidgets.QDialog):
             self.text.setText("Please open a DICOM file")
             self.please_select_directory()
 
-    #This needs to be changed, ONLY for testing perposes.
-    #This code creates a text file and saves it to the wearever the code is being run.
-    #Therefore this needs to be swapped out for the SQL code.
     def save_directory_path(self):
-        """Saves the directory path to a text document"""
-        with open("saved_path.txt", "w", encoding="utf-8") as file:
-            file.write(self.path)
+        """Saves the directory path the database""" 
+        if self.data_base.save_default_path(self.path):
+            self.data_base_success()
+        else:
+            self.data_base_error()
 
     #opens the dicom file and sets all of the data for the Patains like DOB Sex ect
     def set_label(self, ds, field, label, default):
@@ -175,6 +196,7 @@ class MiniProjectUI(QtWidgets.QDialog):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    widget = MiniProjectUI()
+    database = UserPreferences(pathlib.Path("preferences.db"))
+    widget = MiniProjectUI(database)
     widget.show()
     sys.exit(app.exec())
