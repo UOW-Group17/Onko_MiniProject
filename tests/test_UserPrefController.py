@@ -8,7 +8,7 @@ import pathlib
 
 logging.debug("UnitTests: UserPrefModel")
 
-class TestUserPrefModel:
+class TestUserPrefController:
     """ Test Class for UserPrefController """
     @pytest.fixture
     def access(self, tmp_path:pathlib.Path) -> Generator[UserPrefController, Any, None]:
