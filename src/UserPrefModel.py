@@ -5,7 +5,7 @@ import pathlib
 
 logger = logging.getLogger(__name__) # Starting Logger
 
-class UserPreferencesDB:
+class UserPrefModel:
     """ class to create a user preferences database """
     # As this will likely make it easier to test during testing
     # Return Codes:

@@ -2,18 +2,18 @@
 import pathlib
 import pytest
 import logging
-from src.UserPreferencesDB import UserPreferencesDB
+from src.UserPrefModel import UserPrefModel
 
-logging.debug("UnitTests: UserPreferencesDB")
+logging.debug("UnitTests: UserPrefModel")
 
-class TestUserPreferencesDB:
+class TestUserPrefModel:
     """ Test Class for DBAccess """
     @pytest.fixture
     def access(self, tmp_path):
         """ Fixture to set up and Teardown tests """
         logging.info('Setting up test DB fixture')
         db_path = tmp_path / "test_Database.db"
-        db_access = UserPreferencesDB(db_path)
+        db_access = UserPrefModel(db_path)
         db_access.create_table()
         yield db_access
         logging.info('Teardown test DB fixture')
