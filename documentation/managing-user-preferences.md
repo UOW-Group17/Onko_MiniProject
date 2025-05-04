@@ -11,11 +11,11 @@ Key features:
 
 ## 2. Components
 
-### 2.1 UserPreferencesDB.py
+### 2.1 UserPrefModel.py
 
 **Purpose:** Manages SQLite database operations
 
-### 2.2 UserPreferences.py
+### 2.2 UserPrefController.py
 
 **Purpose:** Handles directory creation and database interactions.
 
@@ -34,7 +34,7 @@ default_path() -> pathlib.Path | None
  - Unix/macOS: Hidden via .onko (. prefix).
  - Windows: Hidden via attrib +h command.
 
-### 2.3 InterfaceUserPref.py
+### 2.3 UserPrefInterface.py
 
 **Purpose:** Abstract Base Class (ABC) enforcing method consistency.
 
@@ -53,10 +53,10 @@ def default_path(self) -> pathlib.Path | None: …
 **Basic Operations**
 
 ```python
-from src.UserPreferences import UserPreferences
+from src.UserPrefController import UserPrefController
 
 # Set default path
-prefs = UserPreferences()
+prefs = UserPrefController()
 prefs.save_default_path(Path("/home/user/dicom"))
 
 # Get default path
