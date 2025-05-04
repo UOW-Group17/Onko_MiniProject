@@ -5,7 +5,7 @@ to access the UserPreferences Class
 import pathlib
 from abc import ABC, abstractmethod
 
-class InterfaceUserPref(ABC):
+class UserPrefInterface(ABC):
     """
     Abstract class to define methods to
     access the UserPreferences Class

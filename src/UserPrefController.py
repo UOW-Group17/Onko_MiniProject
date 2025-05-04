@@ -8,12 +8,12 @@ import sqlite3
 import subprocess # Running terminal code
 import logging # Logging what is happening in the code base
 
-from src.InterfaceUserPref import InterfaceUserPref
-from src.UserPreferencesDB import UserPreferencesDB # accessing the database
+from src.UserPrefInterface import UserPrefInterface
+from src.UserPrefModel import UserPrefModel # accessing the database
 
 logger = logging.getLogger(__name__) # Starting logger
 
-class UserPreferences(InterfaceUserPref):
+class UserPrefController(UserPrefInterface):
     """
     To set and modify the default directory for the user to
     begin on when opening the application
@@ -29,7 +29,7 @@ class UserPreferences(InterfaceUserPref):
         self.db_location:pathlib.Path = db_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
         logger.info(f"DB Location: {str(self.db_location)}")
         self.user:str = "default" # Username for key
-        self.database:UserPreferencesDB = None  # Database access
+        self.database:UserPrefModel = None  # Database access
         logger.info("Finish UserPreferences Database")
 
     # Overwritten From Abstract Class
@@ -88,7 +88,7 @@ class UserPreferences(InterfaceUserPref):
         """
         logger.info("START: Creating Database Connection")
         try:
-            self.database:UserPreferencesDB = UserPreferencesDB(self.db_location)
+            self.database:UserPrefModel = UserPrefModel(self.db_location)
             logger.info("FINISH: Creating Database Connection")
             return True
         except sqlite3.OperationalError as error:
