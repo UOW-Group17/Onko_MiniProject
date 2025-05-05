@@ -6,7 +6,7 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
 from inputs_and_outputs import get_qimage_from_dicom_file
-from dicom_utils import extract_patient_info
+from dicom_utils import extract_patient_info, validate_dicom
 from read_dicom_file import read_dicom_file
 from babel.dates import format_date
 import os
@@ -132,8 +132,11 @@ class MiniProjectUI(QtWidgets.QDialog):
     def open_dicom_file(self):
         """Opens a DICOM file and displays the image linked to that file, if available"""
         try:
-
             ds = read_dicom_file(self.path)
+
+            #Adds the validation needed for AXIAL files and "StudyID+StudyDescription"
+            validate_dicom(ds)
+
             if ds is not None:
                 self.save_directory_path()
             else:
@@ -143,6 +146,7 @@ class MiniProjectUI(QtWidgets.QDialog):
             self.file_cannot_be_opened_error()
 
         self.text.setText(self.path)
+
 
         metadata = extract_patient_info(ds)
 
