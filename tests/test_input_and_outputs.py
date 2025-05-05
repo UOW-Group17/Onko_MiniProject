@@ -1,9 +1,5 @@
 import pytest
 from unittest.mock import patch, MagicMock
-
-from ntsecuritycon import DS_NAME_NO_ERROR
-from numba.core.callconv import excinfo_ptr_t
-
 from src import inputs_and_outputs
 
 @pytest.mark.parametrize(
@@ -21,7 +17,8 @@ def test_get_qimage_from_dicom_file_success(pixels, qimage, expected):
     with patch("src.inputs_and_outputs.get_normalized_pixel_array", return_value=pixels), \
          patch("src.inputs_and_outputs.numpy_to_qimage", return_value=qimage):
         result = inputs_and_outputs.get_qimage_from_dicom_file(ds)
-        assert result == expected
+
+    assert result == expected
 
 @pytest.mark.parametrize(
     "pixels, expected_exc, expected_msg",
@@ -39,7 +36,8 @@ def test_get_qimage_from_dicom_file_failure(pixels, expected_exc, expected_msg):
         # Act & Assert
         with pytest.raises(expected_exc) as excinfo:
             inputs_and_outputs.get_qimage_from_dicom_file(ds)
-        assert expected_msg in str(excinfo.value)
+
+    assert expected_msg in str(excinfo.value)
 
 @pytest.mark.parametrize(
     "pixels, qimage, expected_exc, expected_msg",
@@ -69,7 +67,8 @@ def test_get_qimage_from_dicom_file_att_error():
                side_effect=AttributeError("no pixel data")):
         with pytest.raises(ValueError) as excinfo:
             inputs_and_outputs.get_qimage_from_dicom_file(dis)
-            assert "DICOM file is missing pixel data" in str(excinfo.value)
+
+    assert "DICOM file is missing pixel data" in str(excinfo.value)
 
 def test_get_qimage_from_dicom_files_value_error():
     """This method checks that get_qimage_from_dicom_file raises an error keeps the Value error raised by get_normalised_pixel_array
@@ -79,7 +78,7 @@ def test_get_qimage_from_dicom_files_value_error():
     with patch("src.inputs_and_outputs.get_normalized_pixel_array",side_effect=ValueError("bad value")):
         with pytest.raises(ValueError) as excinfo:
             inputs_and_outputs.get_qimage_from_dicom_file(ds)
-            assert "bad value" in str(excinfo.value)
+    assert "bad value" in str(excinfo.value)
 
 def test_get_qimage_from_dicom_file_unexpected_exception():
 
@@ -88,6 +87,7 @@ def test_get_qimage_from_dicom_file_unexpected_exception():
     with patch("src.inputs_and_outputs.get_normalized_pixel_array",
                side_effect=RuntimeError("unexpected error")):
         with pytest.raises(RuntimeError) as excinfo:
-            inputs_and_outputs.get_qimage_from_dicom_file(ds)
-            assert "unexpected error" in str(excinfo.value)
-            assert "Error loading DICOM file" in str(excinfo.value.__cause__)
+                inputs_and_outputs.get_qimage_from_dicom_file(ds)
+        assert "Error loading DICOM image" in str(excinfo.value)
+        assert "unexpected error" in str(excinfo.value.__cause__)
+

@@ -135,7 +135,11 @@ class MiniProjectUI(QtWidgets.QDialog):
             ds = read_dicom_file(self.path)
 
             #Adds the validation needed for AXIAL files and "StudyID+StudyDescription"
-            validate_dicom(ds)
+            if ds is not None:
+                validate_dicom(ds)
+            else:
+                logging.error("validate_dicom failed")
+                raise ValueError("Invalid DICOM file or failed to load the file.")
 
             if ds is not None:
                 self.save_directory_path()
