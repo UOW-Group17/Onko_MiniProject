@@ -100,7 +100,6 @@ class TestReadDicomFile:
             if os.path.exists(f):
                 os.remove(f)
 
-    
     def test_read_valid_dicom(self):
         """Test reading a valid DICOM file"""
         result = read_dicom_file(self.valid_dcm)
@@ -108,7 +107,6 @@ class TestReadDicomFile:
         assert result.PatientName == "Test^Patient"
         assert result.PatientID == "12345"
 
-    
     def test_read_headerless_dicom(self):
         """Test force-reading a headerless DICOM file"""
         result = read_dicom_file(self.headerless_dcm)
@@ -116,15 +114,19 @@ class TestReadDicomFile:
         assert result.PatientName == "HEADERLESS^TEST"
         assert result.PatientID == "67890"
 
-
     def test_invalid_dicom_file(self):
         """Test handling of invalid DICOM file"""
         result = read_dicom_file(self.invalid_dcm)
         assert result is None
-    
+
     def test_empty_file(self):
         """Test handling of empty file"""
         result = read_dicom_file(self.empty_file)
+        assert result is None
+
+    def test_file_not_found(self):
+        """Test handling of non existant file"""
+        result = read_dicom_file("non_existant_file.dcm")
         assert result is None
 
 if __name__ == '__main__':
