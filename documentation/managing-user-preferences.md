@@ -53,7 +53,7 @@ def default_path(self) -> pathlib.Path | None: …
 **Basic Operations**
 
 ```python
-from src.UserPrefController import UserPrefController
+from src.user_pref_controller import UserPrefController
 
 # Set default path
 prefs = UserPrefController()

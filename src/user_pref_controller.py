@@ -8,8 +8,8 @@ import sqlite3
 import subprocess # Running terminal code
 import logging # Logging what is happening in the code base
 
-from src.UserPrefInterface import UserPrefInterface
-from src.UserPrefModel import UserPrefModel # accessing the database
+from src.user_pref_interface import UserPrefInterface
+from src.user_pref_model import UserPrefModel # accessing the database
 
 logger = logging.getLogger(__name__) # Starting logger
 

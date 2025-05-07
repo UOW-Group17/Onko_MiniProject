@@ -1,8 +1,8 @@
 from typing import Any, Generator
 import pytest
 import logging
-from src.UserPrefController import UserPrefController
-from src.UserPrefModel import UserPrefModel
+from src.user_pref_controller import UserPrefController
+from src.user_pref_model import UserPrefModel
 import sqlite3
 import pathlib
 

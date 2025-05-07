@@ -1,13 +1,13 @@
-""" Test File for the DBAccess file """
+""" Test File for the user_pref_model file """
 import pathlib
 import pytest
 import logging
-from src.UserPrefModel import UserPrefModel
+from src.user_pref_model import UserPrefModel
 
 logging.debug("UnitTests: UserPrefModel")
 
 class TestUserPrefModel:
-    """ Test Class for DBAccess """
+    """ Test Class for UserPrefModel """
     @pytest.fixture
     def access(self, tmp_path):
         """ Fixture to set up and Teardown tests """
