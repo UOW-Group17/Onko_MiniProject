@@ -1,10 +1,10 @@
-from typing import Any, Generator
 import pytest
 import logging
-from src.user_pref_controller import UserPrefController
-from src.user_pref_model import UserPrefModel
 import sqlite3
 import pathlib
+from typing import Any, Generator
+from src.user_pref_controller import UserPrefController
+from src.user_pref_model import UserPrefModel
 
 logging.debug("UnitTests: UserPrefModel")
 
@@ -31,6 +31,18 @@ class TestUserPrefController:
         temp_dir:pathlib.Path = tmp_path / "test_db"
         access.set_default_directory(temp_dir)
         yield access
+
+    def test_save_default_path(self, tmp_path:pathlib.Path) -> None:
+        """ Test method for the save default path method """
+        use_path:pathlib.Path = tmp_path / "test_db"
+        use_path.mkdir()
+        use:UserPrefController = UserPrefController(tmp_path)
+        assert use.save_default_path(tmp_path)
+
+    def test_default_path(self, tmp_path, fix_setup_db:UserPrefController) -> None:
+        """ Test method for the default path method """
+        temp_path:pathlib.Path = tmp_path / "test_db"
+        assert fix_setup_db.default_path() == temp_path
 
     def test_create_directory(self, access:UserPrefController) -> None:
         """ Test method for the create directory method """

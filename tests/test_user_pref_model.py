@@ -12,9 +12,8 @@ class TestUserPrefModel:
     def access(self, tmp_path):
         """ Fixture to set up and Teardown tests """
         logging.info('Setting up test DB fixture')
-        db_path = tmp_path / "test_Database.db"
-        db_access = UserPrefModel(db_path)
-        db_access.create_table()
+        db_path:pathlib.Path = tmp_path / "test_Database.db"
+        db_access:UserPrefModel = UserPrefModel(db_path)
         yield db_access
         logging.info('Teardown test DB fixture')
     def test_create_table(self, access):
