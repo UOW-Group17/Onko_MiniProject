@@ -34,8 +34,6 @@ class TestUserPrefController:
 
     def test_save_default_path(self, tmp_path:pathlib.Path) -> None:
         """ Test method for the save default path method """
-        use_path:pathlib.Path = tmp_path / "test_db"
-        use_path.mkdir()
         use:UserPrefController = UserPrefController(tmp_path)
         assert use.save_default_path(tmp_path)
 
@@ -43,6 +41,10 @@ class TestUserPrefController:
         """ Test method for the default path method """
         temp_path:pathlib.Path = tmp_path / "test_db"
         assert fix_setup_db.default_path() == temp_path
+
+    def test_default_path_when_not_set(self, fix_create_dir:UserPrefController) -> None:
+        """ Test method for the default path method if no default path is set """
+        assert fix_create_dir.default_path() is None
 
     def test_create_directory(self, access:UserPrefController) -> None:
         """ Test method for the create directory method """
