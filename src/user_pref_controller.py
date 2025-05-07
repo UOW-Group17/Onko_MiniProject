@@ -34,6 +34,11 @@ class UserPrefController(UserPrefInterface):
 
     # Overwritten From Abstract Class
     def save_default_path(self, path:pathlib.Path) -> bool:
+        """
+        Saving a default path to the database
+        returns true if path has been saved
+        else False
+        """
         self.create_directory()
         try:
             self.create_database_connection()
@@ -45,6 +50,11 @@ class UserPrefController(UserPrefInterface):
 
     # Overwritten from Abstract Class
     def default_path(self) -> pathlib.Path | None:
+        """
+        Getting a default path from the database
+        A check is likely Required before using this method
+        to ensure that a default path exists
+        """
         self.create_database_connection()
         try:
             directory:pathlib.Path = self.get_default_directory()
@@ -64,14 +74,13 @@ class UserPrefController(UserPrefInterface):
 
         # Creating To store User-Preferences
         if not pathlib.Path(self.db_location).exists():
-            pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=False)
+            pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=True)
             logger.info("UserPreferences Directory: Directory Created")
 
         # Skipping the rest of the function if the OS is not Windows
         if os.name != "nt":
             logger.info("FINISHED: UserPreferences Directory: OS is not windows")
             return True
-
         # Making Folder Hidden for Windows
         try:
             subprocess.run(["attrib", "+h", str(self.db_location)], check=True, stderr=subprocess.PIPE, text=True)
