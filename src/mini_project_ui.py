@@ -73,7 +73,7 @@ class MiniProjectUI(QtWidgets.QDialog):
         """Dislays a message if the database saves the value"""
         data_base_success = QtWidgets.QMessageBox()
         data_base_success.setIcon(QtWidgets.QMessageBox.Information)
-        data_base_success.setText("Database could not save the path")
+        data_base_success.setText("Database saved the path")
         data_base_success.exec()
 
     def directory_button_box(self):
