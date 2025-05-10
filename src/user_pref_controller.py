@@ -97,7 +97,8 @@ class UserPrefController(UserPrefInterface):
         """
         logger.info("START: Creating Database Connection")
         try:
-            self.database:UserPrefModel = UserPrefModel(self.db_location)
+            if not self.database:
+                self.database:UserPrefModel = UserPrefModel(self.db_location)
             logger.info("FINISH: Creating Database Connection")
             return True
         except sqlite3.OperationalError as error:

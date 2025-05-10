@@ -15,12 +15,14 @@ class UserPrefModel:
     def __init__(self, database_name: pathlib.Path):
         """ Initializing the database connection/creating database """
         logger.info("Initializing the database connection/creating database")
-        self.database_name:str = database_name.as_posix()
+        self.database_name:pathlib.Path = database_name
         self.max_username_length:int = 20
         self.max_directory_length:int = 200
         try:
-            posix_database_name:str = f"{self.database_name}user_pref.db"
-            self.database:sqlite3.dbapi2 = sqlite3.connect(posix_database_name)
+            # converting to posix cause sqlite3 seems to not like taking a pathlib.Path object as an input
+            posix_database_name:str = self.database_name.as_posix()
+            # appending the file name to the end of the directory path or get sqlite3.OperationalError spam
+            self.database:sqlite3.dbapi2 = sqlite3.connect(f"{posix_database_name}user_pref.db")
             self.create_table()
             logger.info("Database connection successful")
         except sqlite3.OperationalError as error:
