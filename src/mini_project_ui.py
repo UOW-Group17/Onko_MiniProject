@@ -10,7 +10,7 @@ from inputs_and_outputs import get_qimage_from_dicom_file
 from dicom_utils import extract_patient_info
 from read_dicom_file import read_dicom_file
 from babel.dates import format_date
-from UserPreferences import UserPreferences
+from user_pref_controller import UserPrefController
 import pathlib
 import os
 
@@ -196,7 +196,7 @@ class MiniProjectUI(QtWidgets.QDialog):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    database = UserPreferences(pathlib.Path("preferences.db"))
+    database = UserPrefController(pathlib.Path("preferences.db"))
     widget = MiniProjectUI(database)
     widget.show()
     sys.exit(app.exec())
