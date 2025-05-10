@@ -62,19 +62,12 @@ class MiniProjectUI(QtWidgets.QDialog):
         error_message.setText("File can not be opened because the file is missing format data or appropriate headers")
         error_message.exec()
 
-    def data_base_error(self):
-        """Dislays a message if the database fails to save a value"""
-        data_base_error = QtWidgets.QMessageBox()
-        data_base_error.setIcon(QtWidgets.QMessageBox.Warning)
-        data_base_error.setText("Database could not save the path")
-        data_base_error.exec()
-    
-    def data_base_success(self):
-        """Dislays a message if the database saves the value"""
-        data_base_success = QtWidgets.QMessageBox()
-        data_base_success.setIcon(QtWidgets.QMessageBox.Information)
-        data_base_success.setText("Database saved the path")
-        data_base_success.exec()
+    def show_database_message(self, success: bool):
+        """Dislays a message to inform user if the value was saved"""
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information if success else QMessageBox.Warning)
+        msg_box.setText("Database saved successfully." if success else "Database could not save the path")
+        msg_box.exec()
 
     def directory_button_box(self):
         """Creates the grid layout for the button box"""
@@ -140,9 +133,9 @@ class MiniProjectUI(QtWidgets.QDialog):
     def save_directory_path(self):
         """Saves the directory path the database""" 
         if self.data_base.save_default_path(self.path):
-            self.data_base_success()
+            self.show_database_message(success=True)
         else:
-            self.data_base_error()
+            self.show_database_message(success=False)
 
     #opens the dicom file and sets all of the data for the Patains like DOB Sex ect
     def set_label(self, ds, field, label, default):
