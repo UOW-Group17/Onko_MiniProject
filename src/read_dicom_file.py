@@ -29,7 +29,7 @@ def read_dicom_file(file_path):
         return None
 
     except InvalidDicomError as e:
-        logger.warning("File %s is not a valid DICOM file: %s", file_path, str(e))
+        logger.warning("File %s is not a valid DICOM part 10 file: %s", file_path, str(e))
         try:
             # Try force-reading
             dicom_file = pydicom.dcmread(file_path, force=True)
