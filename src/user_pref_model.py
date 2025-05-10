@@ -19,7 +19,10 @@ class UserPrefModel:
         self.max_username_length:int = 20
         self.max_directory_length:int = 200
         try:
-            self.database:sqlite3.dbapi2 = sqlite3.connect(database_name)
+            # converting to posix cause sqlite3 seems to not like taking a pathlib.Path object as an input
+            posix_database_name:str = self.database_name.as_posix()
+            # appending the file name to the end of the directory path or get sqlite3.OperationalError spam
+            self.database:sqlite3.dbapi2 = sqlite3.connect(f"{posix_database_name}user_pref.db")
             self.create_table()
             logger.info("Database connection successful")
         except sqlite3.OperationalError as error:
