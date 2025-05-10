@@ -3,7 +3,7 @@ This file is used to open the dicom image, if it cant be opened it will throw er
 """
 
 import numpy as np
-from dicom_utils import numpy_to_qimage
+from src.dicom_utils import numpy_to_qimage
 
 #Todo Image is not loading if the image is anything other than 2D
 def get_qimage_from_dicom_file(ds):
