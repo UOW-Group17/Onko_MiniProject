@@ -8,7 +8,7 @@ The user preferences system provides persistant storage of applcation settings t
 
 **Path Validation Errors:** When saving preferences, the system calidates directory paths for existence and proper formatting. Invalid paths may be rejected if they exceed maximum length limitations (200 characters) or contain unsupported characters. Troubleshooting requires checking the path for special characters and ensuring it points to an existing, acessible location.
 
-## System Behaviour and Error Handling
+## System Behavior and Error Handling
 
 **Database Connection Errors:** When database connections fail, the system logs detailed error information and raises appropriate exceptions. Failed connections typically result from filesystem permissions or database corruption. The system implements automatic retry logic for transient errors while providing clear feedback for persistant issues.
 
