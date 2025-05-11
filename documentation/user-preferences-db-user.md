@@ -10,7 +10,7 @@ The user preferences system provides persistant storage of applcation settings t
 
 ## System Behavior and Error Handling
 
-**Database Connection Errors:** When database connections fail, the system logs detailed error information and raises appropriate exceptions. Failed connections typically result from filesystem permissions or database corruption. The system implements automatic retry logic for transient errors while providing clear feedback for persistant issues.
+**Database Connection Errors:** When database connections fail, the system logs detailed error information and raises appropriate exceptions. Failed connections typically result from filesystem permissions or database corruption. The system implements automatic retry logic for transient errors while providing clear feedback for persistent issues.
 
 **Unexpected Errors:** The system includes comprehensive exception handling at all levels, from database operations to filesystem interactions. Unexpected errors are captured and logged.
 
