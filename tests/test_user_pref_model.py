@@ -4,18 +4,17 @@ import pytest
 import logging
 from src.user_pref_model import UserPrefModel
 
-logging.debug("UnitTests: UserPrefModel")
+logger = logging.getLogger(__name__)
+logger.debug("UnitTests: UserPrefModel")
 
 class TestUserPrefModel:
     """ Test Class for UserPrefModel """
     @pytest.fixture
     def access(self, tmp_path):
+        logger.setLevel(logging.DEBUG)
         """ Fixture to set up and Teardown tests """
         logging.info('Setting up test DB fixture')
-        db_path = tmp_path / "test_Database.db"
-        db_access = UserPrefModel(db_path)
-        db_access.create_table()
-        yield db_access
+        yield UserPrefModel(database_path=tmp_path, database_name="test_db.db")
         logging.info('Teardown test DB fixture')
     def test_create_table(self, access):
         """ Test Method for create Table method """

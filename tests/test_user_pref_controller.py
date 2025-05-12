@@ -1,55 +1,71 @@
-from typing import Any, Generator
 import pytest
 import logging
-from src.user_pref_controller import UserPrefController
-from src.user_pref_model import UserPrefModel
 import sqlite3
 import pathlib
+from typing import Any, Generator
+from src.user_pref_controller import UserPrefController
+from src.user_pref_model import UserPrefModel
 
-logging.debug("UnitTests: UserPrefModel")
+logger = logging.getLogger(__name__)
+logger.debug("UnitTests: UserPrefModel")
 
 class TestUserPrefController:
     """ Test Class for UserPrefController """
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def access(self, tmp_path:pathlib.Path) -> Generator[UserPrefController, Any, None]:
         """ Fixture to set up the Database environment for the tests to run in """
-        test_db_dir:pathlib.Path = tmp_path / "test_db"
-        test_db_dir.mkdir()
-        access:UserPrefController = UserPrefController(test_db_dir)
-        yield access
+        logger.setLevel(logging.DEBUG)
+        yield UserPrefController(database_location=tmp_path, database_name="test_db.db")
 
-    @pytest.fixture
+
+    @pytest.fixture(scope="function")
     def fix_create_dir(self, access:UserPrefController) -> 'Generator[UserPrefController, Any, None]':
         """ Fixture to create a directory in which the tests are running in """
         access.create_directory()
         yield access
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def fix_setup_db(self, tmp_path, access:UserPrefController) -> Generator[UserPrefController, Any, None]:
         """ Fixture to update user preferences """
+        logger.debug("Setting up Database")
+        access.create_directory()
         access.create_database_connection()
-        temp_dir:pathlib.Path = tmp_path / "test_db"
-        access.set_default_directory(temp_dir)
+        access.set_default_directory(tmp_path)
         yield access
 
-    def test_create_directory(self, access:UserPrefController) -> None:
+    def test_save_default_path(self, tmp_path:pathlib.Path) -> None:
+        """ Test method for the save default path method """
+        use:UserPrefController = UserPrefController(database_location=tmp_path, database_name="test_db.db")
+        assert use.save_default_path(tmp_path)
+        assert use.default_path() == tmp_path
+
+    def test_default_path(self, tmp_path, fix_setup_db:UserPrefController) -> None:
+        """ Test method for the default path method """
+        assert fix_setup_db.default_path() == tmp_path
+        second: UserPrefController = UserPrefController(database_name="test_db2.db", database_location=tmp_path)
+        assert second.default_path() is None
+
+    def test_default_path_when_not_set(self, fix_create_dir:UserPrefController) -> None:
+        """ Test method for the default path method if no default path is set """
+        assert fix_create_dir.default_path() is None
+
+    def test_create_directory(self, access: UserPrefController) -> None:
         """ Test method for the create directory method """
-        # Need to figure out how to test between the different branches of this will return true if success but doesn't
-        # interrogate between which OS branch it goes down
         assert access.create_directory()
+        # Verify the directory was actually created on disk
+        created_dir = access.db_location
+        assert created_dir.exists() and created_dir.is_dir()
 
     def test_create_database_connection(self, access:UserPrefController) -> None:
         """ Testing for if the Class Creates an instance of UserPrefModel """
-        assert access.create_database_connection()
-        result = access.create_database_connection()
-        assert result
+        access.create_directory()
+        access.create_database_connection()
         assert isinstance(access.database, UserPrefModel)
 
-    def test_set_default_directory(self, tmp_path, access:UserPrefController) -> None:
+    def test_set_default_directory(self, tmp_path, fix_setup_db:UserPrefController) -> None:
         """ Testing to see if Adding Directory branch works """
-        access.create_database_connection()
-        temp_dir:pathlib.Path = tmp_path / "test_db"
-        assert access.set_default_directory(temp_dir)
+        temp_dir:pathlib.Path = tmp_path
+        assert fix_setup_db.set_default_directory(temp_dir)
 
     def test_update_default_directory(self, tmp_path, fix_setup_db:UserPrefController) -> None:
         """ Testing to see if updating Directory branch works """
@@ -58,13 +74,14 @@ class TestUserPrefController:
 
     def test_get_default_directory(self, tmp_path, fix_setup_db:UserPrefController) -> None:
         """ Test method for the get_default_directory method """
-        temp_dir: pathlib.Path = tmp_path / "test_db"
-        assert fix_setup_db.get_default_directory() == temp_dir
+        logging.debug("testpath:", tmp_path)
+        assert fix_setup_db.get_default_directory() == tmp_path
         temp_dir2: pathlib.Path = tmp_path / "test_db2"
         with pytest.raises(sqlite3.OperationalError) as invalid_dir:
-            new_db_dir:UserPrefController = UserPrefController(temp_dir2)
+            new_db_dir:UserPrefController = UserPrefController(database_location=temp_dir2, database_name="test_db.db")
             new_db_dir.create_database_connection()
             new_db_dir.get_default_directory()
+        logging.debug("test_get_directory: %s", invalid_dir.value)
         assert isinstance(invalid_dir.value, sqlite3.OperationalError)
 
 if __name__ == '__main__':
