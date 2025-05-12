@@ -46,7 +46,7 @@ class UserPrefController(UserPrefInterface):
             self.create_database_connection()
             self.set_default_directory(path)
         except sqlite3.OperationalError as error:
-            error_message = "Failed to save default directory in save_default_path: %s", error
+            error_message = f"Failed to save default directory in save_default_path: {error}"
             logger.error(error_message)
             raise sqlite3.OperationalError(error_message) from error
         return True
