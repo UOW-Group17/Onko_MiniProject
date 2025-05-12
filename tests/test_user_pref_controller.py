@@ -47,9 +47,12 @@ class TestUserPrefController:
         """ Test method for the default path method if no default path is set """
         assert fix_create_dir.default_path() is None
 
-    def test_create_directory(self, access:UserPrefController) -> None:
+    def test_create_directory(self, access: UserPrefController) -> None:
         """ Test method for the create directory method """
         assert access.create_directory()
+        # Verify the directory was actually created on disk
+        created_dir = access.db_location
+        assert created_dir.exists() and created_dir.is_dir()
 
     def test_create_database_connection(self, access:UserPrefController) -> None:
         """ Testing for if the Class Creates an instance of UserPrefModel """
