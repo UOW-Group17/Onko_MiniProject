@@ -27,6 +27,8 @@ class TestUserPrefController:
     @pytest.fixture(scope="function")
     def fix_setup_db(self, tmp_path, access:UserPrefController) -> Generator[UserPrefController, Any, None]:
         """ Fixture to update user preferences """
+        logger.debug("Setting up Database")
+        access.create_directory()
         access.create_database_connection()
         access.set_default_directory(tmp_path)
         yield access
@@ -71,13 +73,14 @@ class TestUserPrefController:
 
     def test_get_default_directory(self, tmp_path, fix_setup_db:UserPrefController) -> None:
         """ Test method for the get_default_directory method """
-        temp_dir: pathlib.Path = tmp_path / "test_db"
-        assert fix_setup_db.get_default_directory() == temp_dir
+        logging.debug("testpath:", tmp_path)
+        assert fix_setup_db.get_default_directory() == tmp_path
         temp_dir2: pathlib.Path = tmp_path / "test_db2"
         with pytest.raises(sqlite3.OperationalError) as invalid_dir:
             new_db_dir:UserPrefController = UserPrefController(database_location=temp_dir2, database_name="test_db.db")
             new_db_dir.create_database_connection()
             new_db_dir.get_default_directory()
+        logging.debug("test_get_directory: %s", invalid_dir.value)
         assert isinstance(invalid_dir.value, sqlite3.OperationalError)
 
 if __name__ == '__main__':
