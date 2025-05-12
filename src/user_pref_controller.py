@@ -27,6 +27,7 @@ class UserPrefController(UserPrefInterface):
         logger.info("START: UserPreferences Database")
         logger.debug("database_location: %s, database_name: %s", database_location, database_name)
         self.db_location:pathlib.Path = database_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
+        self.create_directory()
         self.database_name:str=database_name
         logger.debug("DB Location: %s, DB Name: %s", self.db_location, self.database_name)
         self.user:str = "default" # Username for key
@@ -96,7 +97,6 @@ class UserPrefController(UserPrefInterface):
         Creating Database Connection for the class to access
         """
         logger.info("START: Creating Database Connection")
-        logger.setLevel(logging.DEBUG)
         try:
             logger.debug("database: %s", str(self.database))
             if self.database is None:
