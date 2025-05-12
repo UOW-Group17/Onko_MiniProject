@@ -12,59 +12,55 @@ class UserPrefModel:
     #   True or Value indicates ran correctly
     #   False indicates operational Error
 
-    def __init__(self, database_name: pathlib.Path):
+    def __init__(self, database_path:pathlib.Path, database_name: str):
         """ Initializing the database connection/creating database """
         logger.info("Initializing the database connection/creating database")
-        self.database_name:pathlib.Path = database_name
+        # appending database name to database path
+        self.database_location:pathlib.Path = database_path / database_name
         self.max_username_length:int = 20
         self.max_directory_length:int = 200
-        try:
-            # converting to posix cause sqlite3 seems to not like taking a pathlib.Path object as an input
-            posix_database_name:str = self.database_name.as_posix()
-            # appending the file name to the end of the directory path or get sqlite3.OperationalError spam
-            self.database:sqlite3.dbapi2 = sqlite3.connect(f"{posix_database_name}user_pref.db")
-            self.create_table()
-            logger.info("Database connection successful")
-        except sqlite3.OperationalError as error:
-            logger.error("Did not create Database object")
-            raise sqlite3.OperationalError from error
+        # converting to posix cause sqlite3 seems to not like taking a pathlib.Path object as an input
+        self.posix_database_location:str = self.database_location.as_posix()
+        logger.debug("database location: %s", self.posix_database_location)
+
+        self.create_table()
+        logger.info("Database connection successful")
 
 
     def create_table(self) -> bool:
         """ Creating table in database"""
         logger.info("Creating table in database")
         try:
-            with self.database as base:
-                cursor:sqlite3.Cursor = base.cursor()
-                cursor.execute(
+            with sqlite3.connect(self.posix_database_location) as base:
+                base.execute(
                 "CREATE TABLE IF NOT EXISTS user_preferences ("
                     "username TEXT UNIQUE PRIMARY KEY, "
                     "default_dir TEXT"
                     ")"
                 )
-                self.database.commit()
             logger.info("Table created successfully")
             return True
         except sqlite3.OperationalError as error:
-            logger.error("Table did not get created")
+            logger.error("Table did not get created: %s", error)
             raise sqlite3.OperationalError from error
 
     def get_default_directory(self, user: str) -> pathlib.Path | None:
         logger.info("Getting default_directory from database")
         try:
-            with self.database as base:
-                cursor:sqlite3.Cursor = base.cursor()
-                value:str = cursor.execute(
+            with sqlite3.connect(self.posix_database_location) as base:
+                value:str = base.execute(
                     "SELECT default_dir FROM user_preferences WHERE username = ?",
                 [user]
                 ).fetchone()
-            # return None is no value is present otherwise return the values found
+                logger.debug("output value %s:", value)
+                # return None is no value is present otherwise return the values found
                 if value is None:
+                    logger.info("No default directory found")
                     return None
-                logger.info("User is found")
+                logger.info("Default directory found")
                 return pathlib.Path(value[0])
         except sqlite3.OperationalError as error:
-            logger.error("User not fetched from database")
+            logger.error("Directory not fetched from database")
             raise sqlite3.OperationalError from error
 
     def _input_check(self, user: str, directory:pathlib.Path) -> None:
@@ -84,14 +80,12 @@ class UserPrefModel:
         logger.info("Adding user to database")
         self._input_check(user, directory)
         try:
-            with self.database as base:
-                cursor:sqlite3.Cursor = base.cursor()
+            with sqlite3.connect(self.posix_database_location) as base:
                 directory:str = str(directory)
-                cursor.execute(
+                base.execute(
                     "INSERT OR IGNORE INTO user_preferences(username, default_dir) VALUES (?, ?)",
                     [user, directory]
                 )
-                self.database.commit()
                 logger.info("User added successfully")
                 return True
         except sqlite3.OperationalError as error:
@@ -103,14 +97,12 @@ class UserPrefModel:
         logger.info("Updating user to database")
         self._input_check(user, directory)
         try:
-            with self.database as base:
-                cursor:sqlite3.Cursor = base.cursor()
+            with sqlite3.connect(self.posix_database_location) as base:
                 directory:str = str(directory)
-                cursor.execute(
+                base.execute(
                     "UPDATE user_preferences SET default_dir= ? WHERE username= ? ",
                     [directory, user]
                 )
-                self.database.commit()
                 logger.info("Directory Updated successfully")
                 return True
         except sqlite3.OperationalError as error:
@@ -121,13 +113,11 @@ class UserPrefModel:
         """ deleting an existing entry from the user_preferences table """
         logger.info("Deleting directory to database")
         try:
-            with self.database as base:
-                cursor:sqlite3.Cursor = base.cursor()
-                cursor.execute(
+            with sqlite3.connect(self.posix_database_location) as base:
+                base.execute(
                     "DELETE FROM user_preferences WHERE username= ? ",
                     [user]
                 )
-                self.database.commit()
                 logger.info("Directory Deleted successfully")
                 return True
         except sqlite3.OperationalError as error:

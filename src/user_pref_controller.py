@@ -22,12 +22,13 @@ class UserPrefController(UserPrefInterface):
     #   True or Value means success
     #   False or exception means did not succeed
     # Unless otherwise Specified
-    def __init__(self, db_location=pathlib.Path.home()) -> None:
+    def __init__(self, database_name:str="user_pref.db", database_location:pathlib.Path=pathlib.Path.home()) -> None:
         """ Creating dependent classes and setting up the file system for the user """
         logger.info("START: UserPreferences Database")
-        db_location:pathlib.Path = pathlib.Path(db_location)
-        self.db_location:pathlib.Path = db_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
-        logger.info(f"DB Location: {str(self.db_location)}")
+        logger.debug("database_location: %s, database_name: %s", database_location, database_name)
+        self.db_location:pathlib.Path = database_location / ".onko" # database directory ( "." makes file hidden in linux and macOS)
+        self.database_name:str=database_name
+        logger.debug("DB Location: %s, DB Name: %s", self.db_location, self.database_name)
         self.user:str = "default" # Username for key
         self.database:UserPrefModel = None  # Database access
         logger.info("Finish UserPreferences Database")
@@ -40,12 +41,14 @@ class UserPrefController(UserPrefInterface):
         else False
         """
         self.create_directory()
+        logger.debug("path %s", path)
         try:
             self.create_database_connection()
             self.set_default_directory(path)
         except sqlite3.OperationalError as error:
-            logger.error(error)
-            raise sqlite3.OperationalError from error
+            error_message = "Failed to save default directory in save_default_path: %s", error
+            logger.error(error_message)
+            raise sqlite3.OperationalError(error_message) from error
         return True
 
     # Overwritten from Abstract Class
@@ -67,14 +70,13 @@ class UserPrefController(UserPrefInterface):
         """
         Creating a directory for the database to be stored
         directory in home directory and set to hidden
-        Returns True if Windows;
-        Returns False if not Windows
+        Returns True for success;
         """
         logger.info("START UserPreferences Directory")
 
         # Creating To store User-Preferences
         if not pathlib.Path(self.db_location).exists():
-            pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=True)
+            pathlib.Path(self.db_location).mkdir(parents=True, exist_ok=False)
             logger.info("UserPreferences Directory: Directory Created")
 
         # Skipping the rest of the function if the OS is not Windows
@@ -86,31 +88,33 @@ class UserPrefController(UserPrefInterface):
             subprocess.run(["attrib", "+h", str(self.db_location)], check=True, stderr=subprocess.PIPE, text=True)
             logger.info("FINISHED: UserPreferences Directory: Windows Directory hidden")
         except subprocess.CalledProcessError as error:
-            logger.error(f"ERROR: UserPreferences Directory: Setting folder to hidden failed, error: {error.stderr.strip()}")
-            raise RuntimeError("Failed to set hidden attribute for UserPreferences directory") from error
+            logger.warning(f"WARNING: UserPreferences Directory: Setting folder to hidden failed (non-critical), error: {error.stderr.strip()}. Continuing without hidden attribute.")
         return True
 
-    def create_database_connection(self) -> bool:
+    def create_database_connection(self) -> None:
         """
         Creating Database Connection for the class to access
-        Returns True if connection made
         """
         logger.info("START: Creating Database Connection")
+        logger.setLevel(logging.DEBUG)
         try:
-            if not self.database:
-                self.database:UserPrefModel = UserPrefModel(self.db_location)
+            logger.debug("database: %s", str(self.database))
+            if self.database is None:
+                self.database:UserPrefModel = UserPrefModel(database_path=self.db_location, database_name=self.database_name)
+                logger.debug("database: %s", self.database.posix_database_location)
             logger.info("FINISH: Creating Database Connection")
-            return True
         except sqlite3.OperationalError as error:
             raise sqlite3.OperationalError from error
 
-    def set_default_directory(self, path:pathlib.Path) -> bool:
+    def set_default_directory(self, path: pathlib.Path) -> bool:
         """
-        Setting/Changing the default directory in the Database
-            Returns True if default directory updated in Database
-            Returns False if default directory added to Database
+        Sets or changes the default directory in the database.
+
+        Note:
+        Ensure that UserPrefModel.update_default_directory and UserPrefModel.add_default_directory
+        return Boolean values consistently representing the result of the operation.
         """
-        logger.info("START: UserPreferences Setting directory")
+        logger.info("START: UserPrefController Setting directory")
         try:
             if self.database.get_default_directory(user=self.user) is not None:
                 value:bool = self.database.update_default_directory(user=self.user, directory=path)
