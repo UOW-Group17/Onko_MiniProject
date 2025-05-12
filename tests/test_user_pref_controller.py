@@ -58,6 +58,7 @@ class TestUserPrefController:
 
     def test_create_database_connection(self, access:UserPrefController) -> None:
         """ Testing for if the Class Creates an instance of UserPrefModel """
+        access.create_directory()
         access.create_database_connection()
         assert isinstance(access.database, UserPrefModel)
 
