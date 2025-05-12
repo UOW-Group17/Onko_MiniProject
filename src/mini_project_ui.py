@@ -4,6 +4,7 @@ import sys
 import pydicom
 import logging
 from PySide6 import QtWidgets
+from PySide6.QtWidgets import QMessageBox
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
 from inputs_and_outputs import get_qimage_from_dicom_file
