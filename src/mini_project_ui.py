@@ -110,10 +110,13 @@ class MiniProjectUI(QtWidgets.QDialog):
         self._grid_group_box.setLayout(layout)
 
     def add_directory(self):
-        """Function for the button click""" 
+        """Function for the button click"""
+        path_object = pathlib.Path(self.path).parent
+        if not path_object.exists() or not path_object.is_dir():
+            path_object = pathlib.Path.home()
         dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,
                                                             caption="Select DICOM File",
-                                                            dir=str(pathlib.Path(self.path).parent),
+                                                            dir=str(path_object),
                                                             filter="DICOM Files (*.dcm)")
         self.path = dir_path
         self.open_dicom_file()
