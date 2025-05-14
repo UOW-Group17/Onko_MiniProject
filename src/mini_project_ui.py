@@ -112,7 +112,12 @@ class MiniProjectUI(QtWidgets.QDialog):
     def add_directory(self):
         """Function for the button click"""
         path_object = pathlib.Path(self.path).parent
-        if not path_object.exists() or not path_object.is_dir() or self.path.strip() == "" or self.path is None:
+        if (
+                not path_object.exists()
+                or not path_object.is_dir()
+                or self.path.strip() == ""
+                or self.path is None
+        ):
             path_object = pathlib.Path.home()
         dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,
                                                             caption="Select DICOM File",
