@@ -7,11 +7,11 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import QTimer
-from inputs_and_outputs import get_qimage_from_dicom_file
-from dicom_utils import extract_patient_info, validate_dicom
-from read_dicom_file import read_dicom_file
+from src.inputs_and_outputs import get_qimage_from_dicom_file
+from src.dicom_utils import extract_patient_info, validate_dicom
+from src.read_dicom_file import read_dicom_file
+from src.user_pref_controller import UserPrefController
 from babel.dates import format_date
-from user_pref_controller import UserPrefController
 import pathlib
 import os
 
