@@ -3,7 +3,8 @@ import sqlite3
 import logging
 import pathlib
 
-logger = logging.getLogger(__name__) # Starting Logger
+logger = logging.getLogger(__name__)  # Starting Logger
+
 
 class UserPrefModel:
     """ class to create a user preferences database """
@@ -12,20 +13,20 @@ class UserPrefModel:
     #   True or Value indicates ran correctly
     #   False indicates operational Error
 
-    def __init__(self, database_path:pathlib.Path, database_name: str):
+    def __init__(self, database_path: pathlib.Path, database_name: str):
         """ Initializing the database connection/creating database """
         logger.info("Initializing the database connection/creating database")
         # appending database name to database path
-        self.database_location:pathlib.Path = database_path / database_name
-        self.max_username_length:int = 20
-        self.max_directory_length:int = 200
-        # converting to posix cause sqlite3 seems to not like taking a pathlib.Path object as an input
-        self.posix_database_location:str = self.database_location.as_posix()
+        self.database_location: pathlib.Path = database_path / database_name
+        self.max_username_length: int = 20
+        self.max_directory_length: int = 200
+        # converting to posix cause sqlite3 seems to not like
+        # taking a pathlib.Path object as an input
+        self.posix_database_location: str = self.database_location.as_posix()
         logger.debug("database location: %s", self.posix_database_location)
 
         self.create_table()
         logger.info("Database connection successful")
-
 
     def create_table(self) -> bool:
         """ Creating table in database"""
@@ -33,7 +34,7 @@ class UserPrefModel:
         try:
             with sqlite3.connect(self.posix_database_location) as base:
                 base.execute(
-                "CREATE TABLE IF NOT EXISTS user_preferences ("
+                    "CREATE TABLE IF NOT EXISTS user_preferences ("
                     "username TEXT UNIQUE PRIMARY KEY, "
                     "default_dir TEXT"
                     ")"
@@ -45,15 +46,19 @@ class UserPrefModel:
             raise sqlite3.OperationalError from error
 
     def get_default_directory(self, user: str) -> pathlib.Path | None:
+        """ This is to get the default directory for a specific user """
         logger.info("Getting default_directory from database")
         try:
             with sqlite3.connect(self.posix_database_location) as base:
-                value:str = base.execute(
-                    "SELECT default_dir FROM user_preferences WHERE username = ?",
-                [user]
+                value: str = base.execute(
+                    "SELECT default_dir "
+                    "FROM user_preferences "
+                    "WHERE username = ?",
+                    [user]
                 ).fetchone()
                 logger.debug("output value %s:", value)
-                # return None is no value is present otherwise return the values found
+                # return None is no value is present
+                # otherwise return the values found
                 if value is None:
                     logger.info("No default directory found")
                     return None
@@ -63,27 +68,33 @@ class UserPrefModel:
             logger.error("Directory not fetched from database")
             raise sqlite3.OperationalError from error
 
-    def _input_check(self, user: str, directory:pathlib.Path) -> None:
+    def _input_check(self, user: str, directory: pathlib.Path) -> None:
         """ To check is the lengths of the inputs are appropriate and exist """
         if (
             not user
             or directory is None
-            or user.__len__() > self.max_username_length
+            or len(user) > self.max_username_length
             or directory == pathlib.Path("")
             or len(str(directory)) > self.max_directory_length
         ):
             logger.error("Invalid User or Directory Name")
             raise RuntimeError("Error: Invalid Directory Name")
 
-    def add_default_directory(self, user: str, directory:pathlib.Path) -> bool:
+    def add_default_directory(
+            self,
+            user: str,
+            directory: pathlib.Path
+    ) -> bool:
         """ adding an entry into the user_preferences table """
         logger.info("Adding user to database")
         self._input_check(user, directory)
         try:
             with sqlite3.connect(self.posix_database_location) as base:
-                directory:str = str(directory)
+                directory: str = str(directory)
                 base.execute(
-                    "INSERT OR IGNORE INTO user_preferences(username, default_dir) VALUES (?, ?)",
+                    "INSERT OR IGNORE "
+                    "INTO user_preferences(username, default_dir) "
+                    "VALUES (?, ?)",
                     [user, directory]
                 )
                 logger.info("User added successfully")
@@ -92,15 +103,21 @@ class UserPrefModel:
             logger.error("OperationalError")
             raise sqlite3.OperationalError from error
 
-    def update_default_directory(self, user:str, directory:pathlib.Path) -> bool:
+    def update_default_directory(
+            self,
+            user: str,
+            directory: pathlib.Path
+    ) -> bool:
         """ updating an existing entry to the user_preferences table """
         logger.info("Updating user to database")
         self._input_check(user, directory)
         try:
             with sqlite3.connect(self.posix_database_location) as base:
-                directory:str = str(directory)
+                directory: str = str(directory)
                 base.execute(
-                    "UPDATE user_preferences SET default_dir= ? WHERE username= ? ",
+                    "UPDATE user_preferences "
+                    "SET default_dir= ? "
+                    "WHERE username= ? ",
                     [directory, user]
                 )
                 logger.info("Directory Updated successfully")
@@ -109,7 +126,7 @@ class UserPrefModel:
             logger.error("OperationalError")
             raise sqlite3.OperationalError from error
 
-    def delete_default_directory(self, user:str) -> bool:
+    def delete_default_directory(self, user: str) -> bool:
         """ deleting an existing entry from the user_preferences table """
         logger.info("Deleting directory to database")
         try:

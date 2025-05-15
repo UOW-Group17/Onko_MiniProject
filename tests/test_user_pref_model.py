@@ -1,21 +1,22 @@
 """ Test File for the user_pref_model file """
 import pathlib
-import pytest
 import logging
+import pytest
 from src.user_pref_model import UserPrefModel
 
 logger = logging.getLogger(__name__)
 logger.debug("UnitTests: UserPrefModel")
 
+
 class TestUserPrefModel:
     """ Test Class for UserPrefModel """
     @pytest.fixture
     def access(self, tmp_path):
-        logger.setLevel(logging.DEBUG)
         """ Fixture to set up and Teardown tests """
         logging.info('Setting up test DB fixture')
         yield UserPrefModel(database_path=tmp_path, database_name="test_db.db")
         logging.info('Teardown test DB fixture')
+
     def test_create_table(self, access):
         """ Test Method for create Table method """
         assert access.create_table() == 1
@@ -70,7 +71,10 @@ class TestUserPrefModel:
         assert str(invalid_user.value) == "Error: Invalid Directory Name"
         long_dir = "p" * 300
         with pytest.raises(RuntimeError) as invalid_dir:
-            access.update_default_directory("ValidUser", pathlib.Path(long_dir))
+            access.update_default_directory(
+                "ValidUser",
+                pathlib.Path(long_dir)
+            )
         assert str(invalid_dir.value) == "Error: Invalid Directory Name"
 
     def test_delete_default_directory(self, tmp_path, access):
@@ -79,6 +83,7 @@ class TestUserPrefModel:
         assert access.delete_default_directory("Dan")
         assert access.get_default_directory("Dan") is None
         assert access.delete_default_directory("Dom")
+
 
 if __name__ == "__main__":
     pytest.main()
