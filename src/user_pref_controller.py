@@ -117,8 +117,8 @@ class UserPrefController(UserPrefInterface):
             logger.warning(
                 "WARNING: UserPreferences Directory: "
                 "Setting folder to hidden failed (non-critical), "
-                "error: %s. Continuing without hidden attribute."
-                % str(error.stderr.strip()))
+                "error: %s. Continuing without hidden attribute.",
+                str(error.stderr.strip()))
         return True
 
     def create_database_connection(self) -> None:
