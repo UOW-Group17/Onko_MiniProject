@@ -127,8 +127,10 @@ class MiniProjectUI(QtWidgets.QDialog):
                                                             caption="Select DICOM File",
                                                             dir=str(path_object),
                                                             filter="DICOM Files (*.dcm)")
-        self.path = dir_path
-        self.open_dicom_file()
+        # on cancel getOpenFileName returns an empty string need to skip
+        if dir_path.strip() != "":
+            self.path = dir_path
+            self.open_dicom_file()
 
     #This also needs to be changed to reflect the MySQL
     def check_saved_dir(self):
@@ -168,7 +170,9 @@ class MiniProjectUI(QtWidgets.QDialog):
                 validate_dicom(ds)
             else:
                 logging.error("validate_dicom failed")
-                raise ValueError("Invalid DICOM file or failed to load the file.")
+                # just returning to avoid raising exception as exception is handled by not overwriting self.path if an empty string is the path
+                return
+                # raise ValueError("Invalid DICOM file or failed to load the file.")
 
             if ds is not None:
                 self.save_directory_path()
