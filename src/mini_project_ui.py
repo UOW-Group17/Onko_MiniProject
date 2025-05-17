@@ -119,14 +119,8 @@ class MiniProjectUI(QtWidgets.QDialog):
     #This also needs to be changed to reflect the MySQL
     def check_saved_dir(self):
         """Checks if the file in the directory has been created"""
-        if os.path.exists("saved_path.txt"):
-            with open("saved_path.txt", "r", encoding="utf-8") as file:
-                content = file.read()
-                if content == "":
-                    self.please_select_directory()
-                    return
-                self.path = content
-                self.open_dicom_file()
+        if self.path != "":
+            self.open_dicom_file()
         else:
             self.text.setText("Please open a DICOM file")
             self.please_select_directory()
