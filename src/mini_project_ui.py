@@ -110,11 +110,27 @@ class MiniProjectUI(QtWidgets.QDialog):
         self._grid_group_box.setLayout(layout)
 
     def add_directory(self):
-        """Function for the button click""" 
-        dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select DICOM File",
+        """Function for the button click"""
+        if self.path is None: # To deal with if self.path is not initialized
+            self.path = ""
+        path_object = pathlib.Path(self.path).parent
+
+        if ( # To ensure the paths given are valid paths
+                not path_object.exists()
+                or not path_object.is_dir()
+                or self.path.strip() == ""
+        ):
+            # Sending to home directory if path doesn't exist
+            path_object = pathlib.Path.home()
+
+        dir_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                            caption="Select DICOM File",
+                                                            dir=str(path_object),
                                                             filter="DICOM Files (*.dcm)")
-        self.path = dir_path
-        self.open_dicom_file()
+        # on cancel getOpenFileName returns an empty string need to skip
+        if dir_path.strip() != "":
+            self.path = dir_path
+            self.open_dicom_file()
 
     #This also needs to be changed to reflect the MySQL
     def check_saved_dir(self):
@@ -148,7 +164,9 @@ class MiniProjectUI(QtWidgets.QDialog):
                 validate_dicom(ds)
             else:
                 logging.error("validate_dicom failed")
-                raise ValueError("Invalid DICOM file or failed to load the file.")
+                # just returning to avoid raising exception as exception is handled by not overwriting self.path if an empty string is the path
+                return
+                # raise ValueError("Invalid DICOM file or failed to load the file.")
 
             if ds is not None:
                 self.save_directory_path()
