@@ -36,7 +36,7 @@ class UserPrefController(UserPrefInterface):
             database_location, database_name
         )
         # database directory ( "." makes file hidden in linux and macOS)
-        self.db_location: pathlib.Path = database_location / ".onko"
+        self.db_location: pathlib.Path = database_location.joinpath(".onko")
         self.create_directory()
         self.database_name: str = database_name
         logger.debug(
@@ -154,7 +154,7 @@ class UserPrefController(UserPrefInterface):
         logger.info("START: UserPrefController Setting directory")
         try:
             if self.database.get_default_directory(user=self.user) is not None:
-                value: bool = self.database.update_default_directory(
+                default_change_success: bool = self.database.update_default_directory(
                     user=self.user,
                     directory=path
                 )
@@ -162,14 +162,14 @@ class UserPrefController(UserPrefInterface):
                     "FINISH: UserPreferences Setting Directory: Updated User"
                 )
             else:
-                value: bool = self.database.add_default_directory(
+                default_change_success: bool = self.database.add_default_directory(
                     user=self.user,
                     directory=path
                 )
                 logger.info(
                     "FINISH: UserPreferences Setting Directory: Added User"
                 )
-            return value
+            return default_change_success
         except sqlite3.OperationalError as error:
             raise sqlite3.OperationalError from error
 
